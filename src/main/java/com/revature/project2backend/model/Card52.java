@@ -1,20 +1,24 @@
-package com.revature.CardLogic;
+package com.revature.project2backend.model;
 
 public class Card52 implements Comparable<Card52> {
-    public enum Suit {SPADE, HEART, CLUB, DIAMOND}
-    public enum Rank {TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE}
+    public enum Suit {
+        SPADE, HEART, CLUB, DIAMOND
+    }
+
+    public enum Rank {
+        TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
+    }
 
     private Suit suit;
     private Rank rank;
 
-    public Card52(Suit suit, Rank rank){
+    public Card52(Suit suit, Rank rank) {
         if (suit == null || rank == null) {
             throw new NullPointerException("Both suit and rank must be defined.");
         }
         this.suit = suit;
         this.rank = rank;
     }
-
 
     public Suit getSuit() {
         return this.suit;
@@ -24,11 +28,10 @@ public class Card52 implements Comparable<Card52> {
         return this.rank;
     }
 
-
     @Override
     public int compareTo(Card52 o) {
         int rankDiff = o.rank.ordinal() - this.rank.ordinal();
-        if(rankDiff != 0) {
+        if (rankDiff != 0) {
             return rankDiff;
         } else {
             return this.suit.ordinal() - o.suit.ordinal();
@@ -38,7 +41,7 @@ public class Card52 implements Comparable<Card52> {
     @Override
     public String toString() {
         String out = "[";
-        
+
         switch (rank) {
             case ACE:
                 out += 'A';
@@ -80,8 +83,8 @@ public class Card52 implements Comparable<Card52> {
                 out += '2';
                 break;
         }
-        
-        switch(suit){
+
+        switch (suit) {
             case SPADE:
                 out += 'S';
                 break;
@@ -99,5 +102,5 @@ public class Card52 implements Comparable<Card52> {
         out += ']';
         return out;
     }
-    
+
 }
