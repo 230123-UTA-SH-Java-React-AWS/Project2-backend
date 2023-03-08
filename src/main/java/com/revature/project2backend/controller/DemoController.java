@@ -24,8 +24,6 @@ public class DemoController {
     @MessageMapping("/stand")
     @SendTo("/gamestate")
     public Hand52 stand(List<Card52> cards) throws Exception {
-        System.out.println(cards.get(0).getRank());
-        System.out.println(cards.get(0).getSuit());
         return new Hand52(cards);
     }
 
