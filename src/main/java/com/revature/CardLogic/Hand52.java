@@ -28,4 +28,13 @@ public class Hand52 {
 
     public int size() { return cards.size(); }
     //Other operations on List<> (such as contains()) can be performed using getCards() and operations provided by List<>.
+
+
+    @Override
+    public String toString() {
+        return "{" +
+            " cards='" + getCards() + "'" +
+            "}";
+    }
+
 }
