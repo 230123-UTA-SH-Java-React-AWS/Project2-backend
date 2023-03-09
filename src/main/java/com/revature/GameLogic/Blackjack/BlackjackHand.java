@@ -39,6 +39,11 @@ public class BlackjackHand extends Hand52 {
         Collections.sort(cards); //Places any aces in hand at the front of the hand to ensure that they are checked last.
         for(int i = cards.size() - 1; i >= 0; i--){
             Card52 c = cards.get(i);
+            //This switch statement is here instead of being in its own BlackjackCard class bfor a specific reason.
+            //I did not extend the Card52 class because that is not analogous to actual card behavior. The game determines
+            // the way that cards act, not the other way around. For instance, a King in blackjack is worth the same value
+            // as a queen, but in poker it would be higher. However, it is still the same King card.
+            //This way of doing it also ensures compatibility between Deck52, Card52, and any extension of the Hand52 class.
             switch (c.getRank()) {
                 case ACE:
                     handValue += (handValue > 10) ? 1 : 11;
