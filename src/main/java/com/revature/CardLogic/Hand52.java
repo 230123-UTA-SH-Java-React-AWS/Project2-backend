@@ -4,23 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Hand52 {
-    private List<Card52> cards = new ArrayList<>();
+    protected List<Card52> cards = new ArrayList<>();
 
     public Hand52(){ }
 
     public Hand52(List<Card52> cards){
-        this.cards = cards;
+        push(cards);
     }
 
     public List<Card52> getCards() { return cards; }
 
     public List<Card52> push(Card52 card) {
-        cards.add(card);
+        if(card != null) cards.add(card);
         return cards;
     }
 
     public List<Card52> push(List<Card52> cardList){
-        cards.addAll(cardList);
+        for(Card52 card: cardList){
+            if(card != null) cards.add(card);
+        }
         return cards;
     }
 

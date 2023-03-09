@@ -4,8 +4,8 @@ public class Card52 implements Comparable<Card52> {
     public enum Suit {SPADE, HEART, CLUB, DIAMOND}
     public enum Rank {TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE}
 
-    private Suit suit;
-    private Rank rank;
+    protected Suit suit;
+    protected Rank rank;
 
     public Card52(Suit suit, Rank rank){
         if (suit == null || rank == null) {
@@ -15,16 +15,20 @@ public class Card52 implements Comparable<Card52> {
         this.rank = rank;
     }
 
-
+    //this.suit is guaranteed non-null
     public Suit getSuit() {
         return this.suit;
     }
 
+    //this.rank is guaranteed non-null
     public Rank getRank() {
         return this.rank;
     }
 
-
+    //Interesting stuff happening here. This provides a canonical ordering for all cards and is the implmentation for the
+    // Comparable<Card52> interface method. This allows the Collections class to sort a list of cards (literally
+    // Collections.sort(List<Card52>).) The order provided is as follows:
+    // Ace of Spades, Ace of Hearts, Ace of Clubs, Ace of Diamonds, King of Spades, and so on to the Two of Diamonds.
     @Override
     public int compareTo(Card52 o) {
         int rankDiff = o.rank.ordinal() - this.rank.ordinal();
@@ -35,6 +39,7 @@ public class Card52 implements Comparable<Card52> {
         }
     }
 
+    //Provides a clean printout of a card, like "[4D]" for the Four of Diamonds or "[KC]" for the King of Clubs
     @Override
     public String toString() {
         String out = "[";

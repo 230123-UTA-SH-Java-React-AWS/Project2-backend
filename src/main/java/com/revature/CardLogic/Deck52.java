@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class Deck52 {
     private List<Card52> deck = new ArrayList<>();
 
+    //All decks are generated with 52 cards, one for each combination of rank and suit.
     public Deck52(){
         for(Card52.Suit s : Card52.Suit.values()){
 			for(Card52.Rank r : Card52.Rank.values()){
@@ -40,6 +41,7 @@ public class Deck52 {
     }
 
     //Remove the next card from the deck and return it.
+    //Throws IndexOutOfBoundsException if there are no cards left in the deck to deal.
     public Card52 deal() throws IndexOutOfBoundsException {
         if(deck.size() == 0) throw new IndexOutOfBoundsException("There are no more cards left to take.");
         return deck.remove(deck.size() - 1); //Index is chosen to avoid many index reassignments each time a card is taken
@@ -62,6 +64,12 @@ public class Deck52 {
         return result;
     }
 
+    //Used to remove a specific card from the deck. Returns a boolean indicating whether the card was successfully removed.
+    //This is intended to be used to pull a specific card out of the deck.
+    //May be used before or after the deck is shuffled (or even if it never is).
+    public boolean remove(Card52 card){
+        return deck.remove(card);
+    }
 
     @Override
     public String toString() {
