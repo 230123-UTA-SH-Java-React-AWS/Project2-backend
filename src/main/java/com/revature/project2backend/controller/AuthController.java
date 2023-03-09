@@ -1,7 +1,6 @@
 package com.revature.project2backend.controller;
 
 
-import com.revature.project2backend.dto.AuthResponseDto;
 import com.revature.project2backend.dto.LoginDto;
 import com.revature.project2backend.dto.RegisterDto;
 import com.revature.project2backend.service.impl.UserServiceImpl;
@@ -21,7 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto){
         return userService.login(loginDto);
     }
 
