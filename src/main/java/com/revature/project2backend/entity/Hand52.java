@@ -1,4 +1,4 @@
-package com.revature.project2backend.model;
+package com.revature.project2backend.entity;
 
 import java.util.ArrayList;
 import java.util.List;

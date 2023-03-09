@@ -13,6 +13,7 @@ function setConnected(connected) {
     else {
         $("#gamestate").hide();
     }
+    $("#actions").empty();
 }
 
 function connect() {

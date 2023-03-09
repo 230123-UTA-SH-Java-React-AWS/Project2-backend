@@ -1,4 +1,4 @@
-package com.revature.project2backend.model;
+package com.revature.project2backend.entity;
 
 public class Card52 implements Comparable<Card52> {
     public enum Suit {
