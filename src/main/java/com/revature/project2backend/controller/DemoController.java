@@ -28,7 +28,7 @@ public class DemoController {
     @SendTo("/gamestate")
     public Hand52 stand(@Payload List<Card52> cards, SimpMessageHeaderAccessor headerAccessor) throws Exception {
         String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
-        System.out.println();
+        System.out.println(sessionId);
         headerAccessor.setSessionId(sessionId);
         return new Hand52(cards);
     }
