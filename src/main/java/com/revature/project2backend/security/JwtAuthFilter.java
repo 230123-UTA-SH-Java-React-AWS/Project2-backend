@@ -1,5 +1,6 @@
 package com.revature.project2backend.security;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,9 +24,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private CustomUserDetailsService customUserDetailsService;
 
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        //check for presence of jwt in "Authorization" header, validate the token, extract the email address within, load the user details associated with the email then set the authentication info in the security context
         String jwtToken = getJwtFromRequest(request);
         if(StringUtils.hasText(jwtToken) && jwtGenerator.validateToken(jwtToken) ){
             String email = jwtGenerator.getEmailFromJwt(jwtToken);

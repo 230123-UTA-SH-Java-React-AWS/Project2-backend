@@ -18,8 +18,9 @@ import java.util.*;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
+    // every user will have the "USER" role
     private final Set<GrantedAuthority> authorities = new HashSet<>(Collections.singleton(new SimpleGrantedAuthority("USER")));
 
     @Autowired

@@ -17,7 +17,6 @@ public class JwtGenerator {
         String email = authentication.getName();
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + SecurityConstants.JWT_EXPIRATION);
-
         String jwtToken = Jwts.builder().setSubject(email).setIssuedAt(new Date()).setExpiration(expireDate).signWith(SignatureAlgorithm.HS256, SecurityConstants.JWT_SECRET).compact();
         return jwtToken;
     }
