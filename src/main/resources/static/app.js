@@ -1,4 +1,4 @@
-var stompClient = null;
+var socket = null;
 
 var Hand52 = {
     cards: [{suit:"CLUB", rank:"THREE"}, {suit:"DIAMOND", rank:"FIVE"}]
@@ -17,33 +17,28 @@ function setConnected(connected) {
 }
 
 function connect() {
-    var socket = new SockJS('/gs-guide-websocket');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/gamestate', function (actions) {
-            console.log(actions);
-            Hand52.cards = JSON.parse(actions.body).cards;
-            showActions(JSON.parse(actions.body).cards);
-        });
-    });
+    socket = new WebSocket("ws://localhost:8080/gamestate");
+    socket.onmessage = function(data) {
+        console.log(data);
+        showActions(data.data);
+    };
+    setConnected(true);
 }
 
 function disconnect() {
-    if (stompClient !== null) {
-        stompClient.disconnect();
+    if (socket !== null) {
+        socket.close();
     }
     setConnected(false);
     console.log("Disconnected");
 }
 
 function hit() {
-    stompClient.send("/app/hit", {}, JSON.stringify(Hand52.cards));
+    socket.send(JSON.stringify(Hand52));
 }
 
 function stand() {
-    stompClient.send("/app/stand", {}, JSON.stringify(Hand52.cards));
+    socket.send(JSON.stringify(Hand52));
 }
 
 function showActions(message) {
