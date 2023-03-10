@@ -2,7 +2,6 @@ package com.revature.project2backend.config;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.stereotype.Component;
@@ -14,7 +13,7 @@ import com.google.gson.Gson;
 import com.revature.project2backend.entity.Hand52;
 
 @Component
-public class SocketHandler extends TextWebSocketHandler {
+public class StandActionHandler extends TextWebSocketHandler {
     List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
     @Override
@@ -22,7 +21,6 @@ public class SocketHandler extends TextWebSocketHandler {
             throws InterruptedException, IOException {
 
         for (WebSocketSession webSocketSession : sessions) {
-            System.out.println(message.getPayload());
             Hand52 value = new Gson().fromJson(message.getPayload(), Hand52.class);
 
             webSocketSession.sendMessage(new TextMessage("Hello " + value.getCards().toString() + " !"));

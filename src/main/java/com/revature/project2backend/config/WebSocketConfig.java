@@ -11,6 +11,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketHandler(), "/gamestate").addInterceptors(new HttpHandshakeInterceptor());
+        registry.addHandler(new StandActionHandler(), "/gamestate").addInterceptors(new HttpHandshakeInterceptor());
     }
 }
