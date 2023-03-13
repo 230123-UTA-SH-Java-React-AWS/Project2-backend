@@ -14,5 +14,12 @@ public class BlackjackClientGameState extends BaseClientGameState {
         String playerName;
         boolean hasTakenTurn;
         List<Card52> cards;
+
+        public BlackjackPlayerInfo(String profilePictureLink, String playerName, boolean hasTakenTurn, List<Card52> cards) {
+            this.profilePictureLink = profilePictureLink;
+            this.playerName = playerName;
+            this.hasTakenTurn = hasTakenTurn;
+            this.cards = cards;
+        }
     }
 }

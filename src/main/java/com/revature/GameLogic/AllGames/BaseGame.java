@@ -2,29 +2,38 @@ package com.revature.GameLogic.AllGames;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public abstract class BaseGame {
-    //Used to determine if the game has started yet.
-    //A game that has started should no longer accept more players, and a game which has not started should not run game logic.
-    //A game should also never go from started to not started.
-    private boolean isGameStarted = false;
+public abstract class BaseGame<T extends Player> {
+    protected Queue<T> waitingPlayers = new ConcurrentLinkedQueue<>(); 
+    protected List<T> activePlayers = new ArrayList<>();
 
-    protected List<Player> players = new ArrayList<>();
+    protected final int maxActivePlayers;
 
-    public BaseGame(){
-
+    protected BaseGame(int maxActivePlayers){
+        this.maxActivePlayers = maxActivePlayers;
     }
 
-    protected void startGame() {
-        isGameStarted = true;
+    //Bring players from the waiting queue into the actual game.
+    protected void admitPlayers(){
+        while(activePlayers.size() < maxActivePlayers && !waitingPlayers.isEmpty()) {
+            activePlayers.add(waitingPlayers.remove());
+        }
+        updateWaitingPlayers();
     }
 
-    public void updatePlayers(){
-        for(Player p : players){
-            p.sendState();
+    public void updateWaitingPlayers(){
+        int i = 1;
+        for(T player : waitingPlayers){
+            player.sendWaitingData(i, waitingPlayers.size());
+            i++;
         }
     }
 
-    //Websocket connections go here if they're common to all games
-
+    public void updateActivePlayers(){
+        for(T player : activePlayers){
+            player.sendState();
+        }
+    }
 }

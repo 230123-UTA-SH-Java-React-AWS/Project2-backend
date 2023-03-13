@@ -10,6 +10,8 @@ public class BlackjackHand extends Hand52 {
     private int handValue = 0;
     private boolean hasBusted = false;
 
+    private boolean isSoftHand = false;
+
     public BlackjackHand() {
 
     }
@@ -35,6 +37,7 @@ public class BlackjackHand extends Hand52 {
 
     //Updates the current handValue (also returns it immediately for use in functions)
     public int calculateHandValue() {
+        isSoftHand = false;
         handValue = 0;
         Collections.sort(cards); //Places any aces in hand at the front of the hand to ensure that they are checked last.
         for(int i = cards.size() - 1; i >= 0; i--){
@@ -46,17 +49,18 @@ public class BlackjackHand extends Hand52 {
             //This way of doing it also ensures compatibility between Deck52, Card52, and any extension of the Hand52 class.
             switch (c.getRank()) {
                 case ACE:
-                    handValue += (handValue > 10) ? 1 : 11;
+                    if (handValue > 10) {
+                        handValue += 1;
+                    } else {
+                        handValue += 11;
+                        isSoftHand = true;
+                        //A "soft" hand is one where an ace is present and is being counted as an 11.
+                        //A soft hand can never bust by taking one additional card.
+                    }
                     break;
                 case KING:
-                    handValue += 10;
-                    break;
                 case QUEEN:
-                    handValue += 10;
-                    break;
                 case JACK:
-                    handValue += 10;
-                    break;
                 case TEN:
                     handValue += 10;
                     break;
@@ -98,4 +102,5 @@ public class BlackjackHand extends Hand52 {
     // current value of the hand.
     public int getHandValue() { return handValue; }
     public boolean getHasBusted() { return hasBusted; }
+    public boolean getIsSoftHand() { return isSoftHand; }
 }

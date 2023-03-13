@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 
 public class Deck52 {
-    private List<Card52> deck = new ArrayList<>();
+    protected List<Card52> deck = new ArrayList<>();
 
     //All decks are generated with 52 cards, one for each combination of rank and suit.
     public Deck52(){
@@ -16,7 +16,7 @@ public class Deck52 {
 		}
     }
 
-    //Shuffles all of the cards in the deck.
+    //Shuffles all the cards in the deck.
     //This returns this Deck52 instance so that a deck instance can be created with this logic: 
     // Deck52 deck = new Deck52().shuffle();
     public Deck52 shuffle(){
@@ -31,19 +31,19 @@ public class Deck52 {
 
     //Shorthand function that can be used to quickly determine if peek() and pop() are safe to execute.
     public boolean hasNext() {
-        return deck.size() > 0;
+        return !deck.isEmpty();
     }
 
     //Show the next card in the deck without removing it. 
     public Card52 peek() throws IndexOutOfBoundsException {
-        if(deck.size() == 0) throw new IndexOutOfBoundsException("There are no more cards left to take.");
+        if(deck.isEmpty()) throw new IndexOutOfBoundsException("There are no more cards left to take.");
         return deck.get(deck.size() - 1); //Index is chosen to avoid many index reassignments each time a card is taken
     }
 
     //Remove the next card from the deck and return it.
     //Throws IndexOutOfBoundsException if there are no cards left in the deck to deal.
     public Card52 deal() throws IndexOutOfBoundsException {
-        if(deck.size() == 0) throw new IndexOutOfBoundsException("There are no more cards left to take.");
+        if(deck.isEmpty()) throw new IndexOutOfBoundsException("There are no more cards left to take.");
         return deck.remove(deck.size() - 1); //Index is chosen to avoid many index reassignments each time a card is taken
     }
 
@@ -56,7 +56,9 @@ public class Deck52 {
     public List<Card52> deal(int number) throws IndexOutOfBoundsException {
         if(number > deck.size()) throw new IndexOutOfBoundsException("There aren't enough cards left to deal " + number + '!');
         List<Card52> result = new ArrayList<>();
-        
+
+        //SonarLint doesn't like the deck.remove right below this because it is inside an ascending for loop.
+        //That warning can be safely ignored for this method.
         for(int i = 0; i < number; i++) {
             result.add(deck.remove(deck.size() - 1));
         }

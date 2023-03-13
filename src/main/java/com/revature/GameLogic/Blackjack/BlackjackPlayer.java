@@ -7,8 +7,10 @@ import com.revature.CardLogic.Card52;
 import com.revature.GameLogic.AllGames.Player;
 
 public class BlackjackPlayer extends Player {
+    public enum EndGameStates {STILL_PLAYING, IS_BUSTED, DEALER_BUSTED, BLACKJACK, LOST_TO_DEALER, TIED_DEALER, BEAT_DEALER}
     private BlackjackHand hand = new BlackjackHand();
-    private boolean hasTakenTurn = false;
+    private boolean hasEndedTurn = false;
+    private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
 
     public void push(Card52 card){
         hand.push(card);
@@ -18,15 +20,42 @@ public class BlackjackPlayer extends Player {
         hand.push(cards);
     }
 
-    public void setHasTakenTurn(boolean hasTakenTurn){
-        this.hasTakenTurn = hasTakenTurn;
+    public void setHasEndedTurn(boolean hasEndedTurn){
+        this.hasEndedTurn = hasEndedTurn;
     }
 
-    public boolean getHasTakenTurn() { return hasTakenTurn; }
+    public boolean getHasEndedTurn() {
+        return hasEndedTurn;
+    }
+
+    public BlackjackHand getHand() {
+        return hand;
+    }
+
+    public EndGameStates getEndGameState() {
+        return endGameState;
+    }
+
+    public void setEndGameState(EndGameStates endGameState) {
+        if(endGameState != null) {
+            this.endGameState = endGameState;
+        }
+    }
 
     @Override
     public void sendState() {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public void sendWaitingData(int pos, int total){
+        //unimplemented at this time because I still need to figure out websockets.
+    }
+
+    @Override
+    public void onMessageReceived(){
+        //unimplemented at this time because I need to determine if handling messages
+        // that the player sends in Player is the right move or not.
     }
 }
