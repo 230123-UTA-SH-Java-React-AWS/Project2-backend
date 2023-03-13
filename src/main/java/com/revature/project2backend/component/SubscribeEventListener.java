@@ -11,6 +11,5 @@ public class SubscribeEventListener implements ApplicationListener<SessionSubscr
     @Override
     public void onApplicationEvent(SessionSubscribeEvent sessionSubscribeEvent) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(sessionSubscribeEvent.getMessage());
-        System.out.println(headerAccessor.getSessionAttributes().get("sessionId").toString());
     }
 }

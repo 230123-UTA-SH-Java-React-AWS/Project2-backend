@@ -8,7 +8,7 @@ import com.revature.GameLogic.AllGames.BaseGame;
 public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
-    BlackjackPlayer dealer = new BlackjackPlayer();
+    BlackjackPlayer dealer = new BlackjackPlayer("");
 
     public BlackjackGame() {
         super(6);
@@ -56,6 +56,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 break; //Dealer stops on a 17 that is not a soft hand.
             }
             dealer.push(deck.deal());
+            onGameStateChange();
         }
 
         //The dealer has taken all the cards they can, now we determine winners/losers

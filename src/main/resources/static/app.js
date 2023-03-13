@@ -1,6 +1,6 @@
-var stompClient = null;
+let stompClient = null;
 
-var Hand52 = {
+let Hand52 = {
     cards: [{suit:"CLUB", rank:"THREE"}, {suit:"DIAMOND", rank:"FIVE"}]
 }
 
@@ -17,12 +17,20 @@ function setConnected(connected) {
 }
 
 function connect() {
-    var socket = new SockJS('/gs-guide-websocket');
+    let socket = new SockJS('/secured/room');
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
+    let sessionId = "";
+
+    stompClient.connect({}, function () {
         setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/gamestate', function (actions) {
+        let url = stompClient.ws._transport.url;
+        url = url.replace("ws://localhost:8080/socket/secured/room/", "");
+        url = url.replace("/websocket", "");
+        url = url.replace(/^\d+\//, "");
+        console.log("Your current session is: " + url);
+        sessionId = url;
+
+        stompClient.subscribe('/secured/user/queue/specific-user' + '-user' + that.sessionId, function (actions) {
             console.log(actions);
             Hand52.cards = JSON.parse(actions.body).cards;
             showActions(JSON.parse(actions.body).cards);

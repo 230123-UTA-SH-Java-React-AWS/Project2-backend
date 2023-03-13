@@ -6,11 +6,15 @@ import com.revature.CardLogic.Card52;
 
 import com.revature.GameLogic.AllGames.Player;
 
-public class BlackjackPlayer extends Player {
+public class BlackjackPlayer extends Player<BlackjackClientGameState> {
     public enum EndGameStates {STILL_PLAYING, IS_BUSTED, DEALER_BUSTED, BLACKJACK, LOST_TO_DEALER, TIED_DEALER, BEAT_DEALER}
     private BlackjackHand hand = new BlackjackHand();
     private boolean hasEndedTurn = false;
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
+
+    public BlackjackPlayer(String urlSuffix){
+        super(urlSuffix);
+    }
 
     public void push(Card52 card){
         hand.push(card);
@@ -44,8 +48,7 @@ public class BlackjackPlayer extends Player {
 
     @Override
     public void sendState() {
-        // TODO Auto-generated method stub
-        
+        gameController.sendPlayerBlackjackGameState(urlSuffix, clientGameState);
     }
 
     @Override

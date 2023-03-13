@@ -1,20 +1,24 @@
 package com.revature.GameLogic.AllGames;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameRegistry {
     private static GameRegistry thisGameRegistry = null;
-    private List<BaseGame> runningGames = new ArrayList<>();
+    private static Map<String, BaseGame> runningGames = new HashMap<>();
 
     private GameRegistry(){}
 
-    public List<BaseGame> getRunningGames() {
-        return this.runningGames;
+    public Map<String, BaseGame> getRunningGames() {
+        return runningGames;
     }
 
-    public void setRunningGames(List<BaseGame> runningGames) {
-        this.runningGames = runningGames;
+    public void addNewGame(BaseGame newGame){
+        runningGames.put(newGame.getUrlSuffix(), newGame);
+    }
+
+    public BaseGame getGameByUrlSuffix(String urlSuffix){
+        return runningGames.get(urlSuffix);
     }
 
     public static GameRegistry getGameRegistry(){
