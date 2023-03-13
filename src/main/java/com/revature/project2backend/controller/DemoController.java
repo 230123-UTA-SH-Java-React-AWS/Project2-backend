@@ -1,36 +1,30 @@
 package com.revature.project2backend.controller;
 
+import java.security.Principal;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
 import com.revature.project2backend.entity.Card52;
-import com.revature.project2backend.entity.Deck52;
 import com.revature.project2backend.entity.Hand52;
 
 @Controller
 public class DemoController {
 
-    @MessageMapping("/hit")
-    @SendTo("/gamestate")
-    public Hand52 hit(List<Card52> cards) throws Exception {
-        Deck52 deck = new Deck52();
-        deck.shuffle();
-        cards.add(deck.deal());
-        return new Hand52(cards);
-    }
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/stand")
-    @SendTo("/gamestate")
-    public Hand52 stand(@Payload List<Card52> cards, SimpMessageHeaderAccessor headerAccessor) throws Exception {
-        String sessionId = headerAccessor.getSessionAttributes().get("sessionId").toString();
-        System.out.println(sessionId);
-        headerAccessor.setSessionId(sessionId);
-        return new Hand52(cards);
+    @MessageMapping("/secured/room")
+    public void stand(@Payload List<Card52> cards, Principal user, @Header("simpSessionId") String sessionId)
+            throws Exception {
+        simpMessagingTemplate.convertAndSendToUser(sessionId, "/queue/specific-user",
+                new Hand52(cards));
+        System.out.println("This user: " + sessionId);
     }
 
 }
