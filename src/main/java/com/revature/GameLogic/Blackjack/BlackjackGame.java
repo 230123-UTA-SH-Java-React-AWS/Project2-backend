@@ -27,7 +27,7 @@ public class BlackjackGame extends BaseGame {
 
     @Override
     protected void startGame() {
-        super.startGame();
+        //super.startGame();
         dealHands();
     }
 
