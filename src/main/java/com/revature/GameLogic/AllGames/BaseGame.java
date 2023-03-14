@@ -15,7 +15,7 @@ public abstract class BaseGame<T extends Player> {
     protected String gameName;
     protected boolean isPrivateGame;
 
-    protected Queue<T> waitingPlayers = new ConcurrentLinkedQueue<>(); 
+    protected Queue<T> waitingPlayers = new ConcurrentLinkedQueue<>();
     protected List<T> activePlayers = new ArrayList<>();
 
     protected final int maxActivePlayers;

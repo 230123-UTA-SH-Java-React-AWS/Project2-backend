@@ -48,7 +48,7 @@ public class BlackjackPlayer extends Player<BlackjackClientGameState> {
 
     @Override
     public void sendState() {
-        gameController.sendPlayerBlackjackGameState(urlSuffix, clientGameState);
+        gameController.sendPlayerBlackjackGameState(clientGameState, urlSuffix);
     }
 
     @Override

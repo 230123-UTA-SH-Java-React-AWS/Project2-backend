@@ -61,9 +61,9 @@ public class GameController {
     }
 
     //FIXME: Change these specific points to things that make more sense.
-    @MessageMapping("fixmemessagemapping")
-    @SendToUser("fixmeusermapping")
-    public void sendPlayerBlackjackGameState(String playerToken, BlackjackClientGameState state){
-        simpMessageingTemplate.convertAndSendToUser(playerToken, "", state);
+    @MessageMapping("/app/player")
+    @SendToUser("/player/{sessionId}")
+    public void sendPlayerBlackjackGameState(BlackjackClientGameState state, @Header("simpSessionId") String sessionId){
+        simpMessageingTemplate.convertAndSendToUser(sessionId, "", state);
     }
 }
