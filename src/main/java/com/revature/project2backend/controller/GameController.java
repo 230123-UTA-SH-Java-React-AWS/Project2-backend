@@ -2,13 +2,18 @@ package com.revature.project2backend.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import com.revature.GameLogic.AllGames.BaseGame;
 import com.revature.GameLogic.AllGames.GameRegistry;
+import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
 import com.revature.GameLogic.Blackjack.BlackjackClientGameState;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
+
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Header;
@@ -24,15 +29,20 @@ public class GameController {
     @Autowired
     private SimpMessagingTemplate simpMessageingTemplate;
 
-    @GetMapping("createGame")
-    public String createBlackjackGame() {
-        BaseGame<BlackjackPlayer> newGame = new BlackjackGame();
+    @GetMapping("allGames")
+    public List<GameRepresentation> getAllGames() {
+        return GameRegistry.getGameRegistry().getPublicGames();
+    }
+
+    @PostMapping("createblackjackGame")
+    public String createBlackjackGame(@Header String lobbyName, @Header boolean lobbyIsPrivate) {
+        BaseGame<BlackjackPlayer> newGame = new BlackjackGame(lobbyName, lobbyIsPrivate);
         GameRegistry.getGameRegistry().addNewGame(newGame);
         return newGame.getUrlSuffix();
     }
 
     @PutMapping("joinGame")
-    public void joinBlackjackGame(String gameUrl, @Header StompHeaderAccessor headers) {
+    public void joinBlackjackGame(@Payload String gameUrl, @Header("simpSessionId") String sessionId) {
         BaseGame game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameUrl);
         BlackjackGame blackjackGame;
         if(game instanceof BlackjackGame){
@@ -41,7 +51,7 @@ public class GameController {
             //Error condition - the user is using joinBlackjackGame to attempt to join a non-blackjack game
             return;
         }
-        blackjackGame.addPlayer(new BlackjackPlayer(headers.getSessionId()));
+        blackjackGame.addPlayer(new BlackjackPlayer(sessionId));
     }
 
     @MessageMapping("/app/gamestate")
@@ -51,8 +61,8 @@ public class GameController {
     }
 
     //FIXME: Change these specific points to things that make more sense.
-    @MessageMapping("fixme")
-    @SendToUser("fixme")
+    @MessageMapping("fixmemessagemapping")
+    @SendToUser("fixmeusermapping")
     public void sendPlayerBlackjackGameState(String playerToken, BlackjackClientGameState state){
         simpMessageingTemplate.convertAndSendToUser(playerToken, "", state);
     }

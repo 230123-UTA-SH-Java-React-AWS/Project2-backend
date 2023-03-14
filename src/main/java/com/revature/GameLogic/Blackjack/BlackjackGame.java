@@ -10,8 +10,9 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     //The dealer always exists and their cards are what gets compared against the players' cards.
     BlackjackPlayer dealer = new BlackjackPlayer("");
 
-    public BlackjackGame() {
-        super(6);
+    public BlackjackGame(String gameName, boolean isPrivateGame) {
+        super(gameName, isPrivateGame, 6);
+        gameType = GameType.BLACKJACK;
     }
 
     public void dealHands(){
