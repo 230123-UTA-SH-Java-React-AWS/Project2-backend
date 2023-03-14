@@ -1,10 +1,12 @@
 package com.revature.project2backend.security;
 
 
+import com.sun.tools.javac.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,6 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -36,8 +44,7 @@ public class SecurityConfig {
         //  TODO: "/api/hello" does not exist, this is an example of a GET endpoint that requires users to be authenticated [ .authorizeRequests().antMatchers("/api/hello").authenticated() ] must be between [.and()] methods
         // "/api/auth/**" contains two endpoints "login" and "register", any endpoint after /auth does not require users to be authenticated
         http.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(authEntryPoint)
-                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests().antMatchers("/api/hello").authenticated().and().authorizeRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
+                .exceptionHandling().authenticationEntryPoint(authEntryPoint).and().cors(Customizer.withDefaults()).sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests().antMatchers("/api/hello").authenticated().and().authorizeRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
         // jwt filter will validate tokens on each request
         http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -57,5 +64,19 @@ public class SecurityConfig {
     @Bean
     public JwtAuthFilter jwtAuthFilter(){
         return new JwtAuthFilter();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration configuration=  new CorsConfiguration();
+        //TODO: change allowed origin to hosted url later
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        //TODO: update list if needed
+        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        configuration.setAllowedHeaders(List.of("Authorization"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        //cors on every endpoint, change if needed
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

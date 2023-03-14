@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
         this.jwtGenerator = jwtGenerator;
     }
 
+    //TODO: get rid of wildcard response entity
     @Override
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto){
         try{
@@ -55,11 +56,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
         // check if email already exists
-        if(userRepository.existsByEmail(registerDto.getEmail())){
+        if(Boolean.TRUE.equals(userRepository.existsByEmail(registerDto.getEmail()))){
             return new ResponseEntity<>("Email is taken!", HttpStatus.BAD_REQUEST);
         }
         // check if the username already exists
-        if(userRepository.existsByUsername(registerDto.getUsername())){
+        if(Boolean.TRUE.equals(userRepository.existsByUsername(registerDto.getUsername()))){
             return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
         }
         // create user instance and set credentials
