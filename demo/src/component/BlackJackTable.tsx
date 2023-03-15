@@ -8,12 +8,19 @@ import { useParams } from 'react-router-dom';
 let stompClient: Client;
 
 function BlackJackTable() {
-    const [isActive, setIsActive] = useState<boolean>(false);
+    const [playerId, setPlayerId] = useState<string>("");
     const [gameState, setGameState] = useState<BlackjackClientGameState>();
 
     let { tableId } = useParams();
 
     const connect = () => {
+        fetch(`http://localhost:8080/joinGame`, {
+            method: "PUT",
+            body: tableId
+        })
+        .then( (res) => setPlayerId(res.toString()))
+        .catch( (err) => console.log(err));
+
         let socket = new SockJS(`http://localhost:8080/ws`);
         stompClient = over(socket);
         //TODO: remove console.log below
@@ -28,7 +35,7 @@ function BlackJackTable() {
     const onConnect = () => {
         stompClient.subscribe('/blackjack/' + tableId, (payload) => { console.log(payload) });
         //Player subscription should be controlled by their session ID
-        stompClient.subscribe('/player/' + , (payload) => {
+        stompClient.subscribe('/player/' + playerId, (payload) => {
             if(payload instanceof BlackjackClientGameState) {
                 setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
             }
@@ -40,6 +47,9 @@ function BlackJackTable() {
     const onHitAction = () => {
         stompClient.send('/app/gamestate', {}, JSON.stringify({"cards": [{"suit":"CLUB", "rank":"TWO"}, {"suit":"CLUB", "rank":"THREE"}]}));
     }
+
+    const onStandAction = () => {}
+    
     let playerList: any;
     if (typeof gameState != 'undefined') {
         playerList = gameState.players.map(player => 
@@ -50,15 +60,8 @@ function BlackJackTable() {
     
     return (
         <div>
-            <ul>
-                {typeof gameState != 'undefined' &&
-                <li>
-                    Dealer has {"" + gameState.dealersCards}
-                </li>}
-                
-                {playerList}
-            </ul>
-            {isActive ? (<button type='button' onClick={onHitAction}>HIT</button>) : (<button type='button' onClick={connect}>Connect</button>)}
+            <button type='button' onClick={onHitAction}>HIT</button>
+            <button type='button' onClick={onStandAction}>STAND</button>
         </div>
     );
 }

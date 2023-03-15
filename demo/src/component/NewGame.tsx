@@ -7,15 +7,6 @@ function NewGame() {
     const [isPrivate, setIsPrivate] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    const joinAndRedirect = (url:string) => {
-        fetch(`http://localhost:8080/joinGame`, {
-            method: "PUT",
-            body: url
-        })
-        .then( () => navigate('/' + gameType + '/' + url))
-        .catch( (err) => console.log(err));
-    } 
-
     const handleNewGame = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
@@ -27,7 +18,7 @@ function NewGame() {
             },
 
         })
-        .then( (res) => (joinAndRedirect(res.toString())))
+        .then( (res) => (navigate('/' + gameType + '/' + res.toString())))
         .catch( (err) => console.log(err));
     }
 
