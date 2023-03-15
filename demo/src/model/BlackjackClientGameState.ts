@@ -1,4 +1,4 @@
-import { BlackjackPlayerInfo } from "./BlackJackPlayerInfo";
+import { BlackjackPlayerInfo } from "./BlackjackPlayerInfo";
 import { Card52 } from "./Card52";
 
 export class BlackjackClientGameState {

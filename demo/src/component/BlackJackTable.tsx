@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Client, over } from 'stompjs';
 import SockJS from 'sockjs-client';
-import { BlackjackClientGameState } from '../model/BlackJackClientGameState';
-import { BlackjackPlayerInfo } from '../model/BlackJackPlayerInfo';
+import { BlackjackClientGameState } from '../model/BlackjackClientGameState';
+import { BlackjackPlayerInfo } from '../model/BlackjackPlayerInfo';
 import { useParams } from 'react-router-dom';
 
 let stompClient: Client;
@@ -28,7 +28,7 @@ function BlackJackTable() {
     const onConnect = () => {
         stompClient.subscribe('/blackjack/' + tableId, (payload) => { console.log(payload) });
         //Player subscription should be controlled by their session ID
-        stompClient.subscribe('/player/', (payload) => {
+        stompClient.subscribe('/player/' + , (payload) => {
             if(payload instanceof BlackjackClientGameState) {
                 setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
             }
