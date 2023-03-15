@@ -3,6 +3,8 @@ package com.revature.project2backend.service.impl;
 import com.revature.project2backend.dto.AuthResponseDto;
 import com.revature.project2backend.dto.LoginDto;
 import com.revature.project2backend.dto.RegisterDto;
+import com.revature.project2backend.exception.LoginNotValidException;
+import com.revature.project2backend.exception.RegisterNotValidException;
 import com.revature.project2backend.model.UserEntity;
 import com.revature.project2backend.repository.UserRepository;
 import com.revature.project2backend.security.JwtGenerator;
@@ -13,11 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,19 +40,24 @@ public class UserServiceImpl implements UserService {
     }
 
     //TODO: get rid of wildcard response entity
+    //TODO: include user details like username, wins, and profile photo
     @Override
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto){
-        try{
-            // authenticate user with a token that's passed to the authentication manager in Spring
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
-            // store authenticated user in Spring Security context
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            // generate jwt token for the user and send it as a response
-            String jwtToken = jwtGenerator.generateJwtToken(authentication);
-            return new ResponseEntity<>(new AuthResponseDto(jwtToken), HttpStatus.OK);
-        } catch (AuthenticationException e) {
-            // returns a 'bad credentials' message when email or password is wrong
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto){
+        if(Boolean.TRUE.equals((userRepository.existsByEmail(loginDto.getEmail())))){
+            Optional<UserEntity> user = userRepository.findByEmail(loginDto.getEmail());
+            if (user.isPresent() && passwordEncoder.matches( loginDto.getPassword(),user.get().getPassword())) {
+                // authenticate user with email & password that's passed to the authentication manager in Spring
+                Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
+                // store authenticated user in Spring Security context
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // generate jwt token for the user and send it as a response
+                String jwtToken = jwtGenerator.generateJwtToken(authentication);
+                return new ResponseEntity<>(new AuthResponseDto(user.get().getUsername(), loginDto.getEmail(),jwtToken ), HttpStatus.OK);
+            } else{
+                throw new LoginNotValidException("Invalid password!");
+            }
+        } else{
+            throw new LoginNotValidException("Email doesn't exist!");
         }
     }
 
@@ -57,11 +65,11 @@ public class UserServiceImpl implements UserService {
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
         // check if email already exists
         if(Boolean.TRUE.equals(userRepository.existsByEmail(registerDto.getEmail()))){
-            return new ResponseEntity<>("Email is taken!", HttpStatus.BAD_REQUEST);
+            throw new RegisterNotValidException("Email is already in use!");
         }
         // check if the username already exists
         if(Boolean.TRUE.equals(userRepository.existsByUsername(registerDto.getUsername()))){
-            return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
+            throw new RegisterNotValidException("Username is already in use!");
         }
         // create user instance and set credentials
         UserEntity user = new UserEntity();

@@ -12,8 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public class CsrfController {
 
+
+    private final CsrfTokenRepository csrfTokenRepository;
     @Autowired
-    private CsrfTokenRepository csrfTokenRepository;
+    public CsrfController(CsrfTokenRepository csrfTokenRepository){
+        this.csrfTokenRepository = csrfTokenRepository;
+    }
 
     @GetMapping("/api/csrf")
     public CsrfToken csrfToken(HttpServletRequest request, HttpServletResponse response) {

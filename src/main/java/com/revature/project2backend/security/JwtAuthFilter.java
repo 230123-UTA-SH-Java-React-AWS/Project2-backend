@@ -6,8 +6,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,13 +23,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
-
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         //check for presence of jwt in "Authorization" header, validate the token, extract the email address within, load the user details associated with the email then set the authentication info in the security context
         String jwtToken = getJwtFromRequest(request);
+
         if(StringUtils.hasText(jwtToken) && jwtGenerator.validateToken(jwtToken) ){
             String email = jwtGenerator.getEmailFromJwt(jwtToken);
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);

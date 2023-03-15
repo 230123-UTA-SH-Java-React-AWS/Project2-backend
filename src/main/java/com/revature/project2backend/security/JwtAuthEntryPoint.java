@@ -13,6 +13,14 @@ import java.io.IOException;
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // Create a JSON object with a custom error message
+        String jsonResponse = "{\"error\":\"JWT is not present or invalid\"}";
+
+        // Write the JSON response to the HttpServletResponse
+        response.getWriter().write(jsonResponse);
     }
 }

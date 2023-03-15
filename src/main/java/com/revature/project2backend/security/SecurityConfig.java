@@ -1,6 +1,7 @@
 package com.revature.project2backend.security;
 
 
+import com.revature.project2backend.exception.CsrfAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,11 +30,13 @@ public class SecurityConfig {
 
     private final JwtAuthEntryPoint authEntryPoint;
     private final CustomUserDetailsService userDetailsService;
+    private final CsrfAccessDeniedHandler csrfAccessDeniedHandler;
 
     @Autowired
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtAuthEntryPoint authEntryPoint, CsrfAccessDeniedHandler csrfAccessDeniedHandler) {
         this.userDetailsService = userDetailsService;
         this.authEntryPoint = authEntryPoint;
+        this.csrfAccessDeniedHandler = csrfAccessDeniedHandler;
     }
 
     @Bean
@@ -44,7 +47,7 @@ public class SecurityConfig {
         // "/api/auth/**" contains two endpoints "login" and "register", any endpoint after /auth does not require users to be authenticated
         http.csrf().csrfTokenRepository(csrfTokenRepository()).and()
                 .cors(Customizer.withDefaults())
-                .exceptionHandling().authenticationEntryPoint(authEntryPoint).and()
+                .exceptionHandling().authenticationEntryPoint(authEntryPoint).accessDeniedHandler(csrfAccessDeniedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/csrf").permitAll().and()
                 .authorizeRequests().antMatchers("/api/hello").authenticated().and()
