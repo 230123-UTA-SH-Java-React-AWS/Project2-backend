@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import com.revature.GameLogic.AllGames.BaseGame;
 import com.revature.GameLogic.AllGames.GameRegistry;
 import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
-import com.revature.GameLogic.Blackjack.BlackjackClientGameState;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
 

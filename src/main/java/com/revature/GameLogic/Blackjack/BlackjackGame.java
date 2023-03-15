@@ -10,10 +10,11 @@ import com.revature.CardLogic.MultiDeck52;
 import com.revature.GameLogic.AllGames.BaseGame;
 
 public class BlackjackGame extends BaseGame<BlackjackPlayer> {
+    Random rand = new Random(); //This should be removed later when the player names are refactored.
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
     BlackjackPlayer dealer = new BlackjackPlayer();
-
+    
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 6);
         gameType = GameType.BLACKJACK;
@@ -31,7 +32,6 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         //Create the new game state,
         //For blackjack, we only have to do this once because everyone has the same information.
         List<BlackjackClientGameState.BlackjackPlayerInfo> playerInfo = new ArrayList<>();
-        Random rand = new Random(); //This should be removed later when the player names are refactored.
         for(BlackjackPlayer p : activePlayers){
             playerInfo.add(new BlackjackClientGameState.BlackjackPlayerInfo(
                 p.getEndGameState(),
@@ -53,6 +53,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
      * This method handles the logic associated with ending the game -- specifically, this means handling the
      *  dealer's turn. THe general flow of this function is as follows:
      *  - Do nothing unless all players have completed their turns
+     *  - The dealer can take their cards, updating the players each time they do so
+     *  - Winners and losers can be determined.
      */
     public void onPlayerEndsTurn() {
         //If all players have not yet finished their turn, we wait until they do.

@@ -17,8 +17,7 @@ public class Deck52 {
     }
 
     //Shuffles all the cards in the deck.
-    //This returns this Deck52 instance so that a deck instance can be created with this logic: 
-    // Deck52 deck = new Deck52().shuffle();
+    //This returns this Deck52 instance so that a deck instance can be created by doing [new Deck52.shuffle]
     public Deck52 shuffle(){
         Collections.shuffle(deck);
         return this;

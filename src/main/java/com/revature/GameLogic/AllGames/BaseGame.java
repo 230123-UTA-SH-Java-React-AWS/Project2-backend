@@ -3,6 +3,7 @@ package com.revature.GameLogic.AllGames;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -68,7 +69,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
 
     protected T getActivePlayerByUrlSuffix(String playerId){
         for(T player : activePlayers){
-            if(player.getUrlSuffix() == playerId) return player;
+            if(Objects.equals(player.getUrlSuffix(), playerId)) return player;
         }
         return null;
     }

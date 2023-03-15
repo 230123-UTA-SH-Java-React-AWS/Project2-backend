@@ -30,6 +30,7 @@ public class GameRegistry {
         runningGames.put(newGame.getUrlSuffix(), newGame);
     }
 
+    //I don't even know what SonarLint is mad about here.
     public BaseGame<?> getGameByUrlSuffix(String urlSuffix){
         return runningGames.get(urlSuffix);
     }
