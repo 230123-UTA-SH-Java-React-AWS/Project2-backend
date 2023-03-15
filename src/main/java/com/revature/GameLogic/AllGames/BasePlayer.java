@@ -1,18 +1,28 @@
 package com.revature.GameLogic.AllGames;
 
-import com.revature.project2backend.controller.GameController;
+import java.security.SecureRandom;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 //Represents a player who has successfully connected to a game. Each player should represent one person at the table,
 // with one connection established. Implementation left empty below pending discussion with team.
-public abstract class Player<T extends BaseClientGameState> {
+public abstract class BasePlayer<T extends BaseClientGameState> {
     @Autowired
-    protected GameController gameController;
+    protected SimpMessagingTemplate simpMessagingTemplate;
+    private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
+
     protected String urlSuffix;
     protected T clientGameState; //The game state that this client has.
 
-    protected Player(String urlSuffix) {
-        this.urlSuffix = urlSuffix;
+    protected BasePlayer() {
+        SecureRandom rand = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < 64; i++){
+            int pos = rand.nextInt() % URL_CHARS.length();
+            sb.append(URL_CHARS.charAt(pos));
+        }
+        urlSuffix = sb.toString();
     }
 
     //Send the current game state to the client.
@@ -26,7 +36,6 @@ public abstract class Player<T extends BaseClientGameState> {
 
     public void setClientGameState(T clientGameState) {
         this.clientGameState = clientGameState;
-        sendState();
     }
 
     public abstract void onMessageReceived();

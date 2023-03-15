@@ -4,16 +4,16 @@ import java.util.List;
 
 import com.revature.CardLogic.Card52;
 
-import com.revature.GameLogic.AllGames.Player;
+import com.revature.GameLogic.AllGames.BasePlayer;
 
-public class BlackjackPlayer extends Player<BlackjackClientGameState> {
+public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     public enum EndGameStates {STILL_PLAYING, IS_BUSTED, DEALER_BUSTED, BLACKJACK, LOST_TO_DEALER, TIED_DEALER, BEAT_DEALER}
     private BlackjackHand hand = new BlackjackHand();
     private boolean hasEndedTurn = false;
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
 
-    public BlackjackPlayer(String urlSuffix){
-        super(urlSuffix);
+    public BlackjackPlayer(){
+        super();
     }
 
     public void push(Card52 card){
@@ -48,7 +48,7 @@ public class BlackjackPlayer extends Player<BlackjackClientGameState> {
 
     @Override
     public void sendState() {
-        gameController.sendPlayerBlackjackGameState(clientGameState, urlSuffix);
+        simpMessagingTemplate.convertAndSendToUser(urlSuffix, "", clientGameState);
     }
 
     @Override

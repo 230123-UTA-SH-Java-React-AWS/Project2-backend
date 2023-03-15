@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public abstract class BaseGame<T extends Player> {
+public abstract class BaseGame<T extends BasePlayer<?>> {
     public enum GameType {BLACKJACK}
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
+
     protected String urlSuffix;
     protected GameType gameType = null;
 
@@ -66,6 +67,13 @@ public abstract class BaseGame<T extends Player> {
         for(T player : activePlayers){
             player.sendState();
         }
+    }
+
+    protected T getActivePlayerByUrlSuffix(String playerId){
+        for(T player : activePlayers){
+            if(player.getUrlSuffix() == playerId) return player;
+        }
+        return null;
     }
 
     public GameRepresentation representation(){

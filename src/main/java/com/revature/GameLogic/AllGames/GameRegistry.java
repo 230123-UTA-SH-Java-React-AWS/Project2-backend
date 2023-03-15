@@ -9,17 +9,17 @@ import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
 
 public class GameRegistry {
     private static GameRegistry thisGameRegistry = null;
-    private static Map<String, BaseGame> runningGames = new HashMap<>();
+    private static Map<String, BaseGame<?>> runningGames = new HashMap<>();
 
     private GameRegistry(){}
 
-    public Map<String, BaseGame> getRunningGames() {
+    public Map<String, BaseGame<?>> getRunningGames() {
         return runningGames;
     }
 
     public List<GameRepresentation> getPublicGames() {
         List<GameRepresentation> games = new ArrayList<>();
-        for(Map.Entry<String, BaseGame> g : runningGames.entrySet()){
+        for(Map.Entry<String, BaseGame<?>> g : runningGames.entrySet()){
             if(!g.getValue().getIsPrivateGame()){
                 games.add(g.getValue().representation());
             }
@@ -27,11 +27,11 @@ public class GameRegistry {
         return games;
     }
 
-    public void addNewGame(BaseGame newGame){
+    public void addNewGame(BaseGame<?> newGame){
         runningGames.put(newGame.getUrlSuffix(), newGame);
     }
 
-    public BaseGame getGameByUrlSuffix(String urlSuffix){
+    public BaseGame<?> getGameByUrlSuffix(String urlSuffix){
         return runningGames.get(urlSuffix);
     }
 

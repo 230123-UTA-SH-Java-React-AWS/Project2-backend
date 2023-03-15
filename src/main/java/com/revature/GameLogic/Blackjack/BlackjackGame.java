@@ -1,5 +1,9 @@
 package com.revature.GameLogic.Blackjack;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import com.revature.CardLogic.Deck52;
 
 import com.revature.CardLogic.MultiDeck52;
@@ -8,7 +12,7 @@ import com.revature.GameLogic.AllGames.BaseGame;
 public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
-    BlackjackPlayer dealer = new BlackjackPlayer("");
+    BlackjackPlayer dealer = new BlackjackPlayer();
 
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 6);
@@ -24,12 +28,24 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void onGameStateChange(){
-        //Create new game states for each client.
-
-
-        //Send the new game state to all connected clients
+        //Create the new game state,
+        //For blackjack, we only have to do this once because everyone has the same information.
+        List<BlackjackClientGameState.BlackjackPlayerInfo> playerInfo = new ArrayList<>();
+        Random rand = new Random(); //This should be removed later when the player names are refactored.
         for(BlackjackPlayer p : activePlayers){
-            p.sendState();
+            playerInfo.add(new BlackjackClientGameState.BlackjackPlayerInfo(
+                p.getEndGameState(),
+                //TODO: Instead of a "player name", this should be changed to a unique identifier that allows the frontend to
+                // retreive player info from the database.
+                "Jimothy" + rand.nextInt(),
+                p.getHasEndedTurn(),
+                p.getHand().getCards()));
+        }
+        BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), playerInfo);
+
+        for(BlackjackPlayer p : activePlayers){
+            p.setClientGameState(gameState); //Update everyone's game state
+            p.sendState(); //Send the new game state to all connected clients
         }
     }
 
@@ -114,29 +130,35 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
 
     //What happens when a player leaves the game via disconnection?
     // Ideal case: the player withdraws and loses any money the
-    public void dropPlayer(BlackjackPlayer player){
+    public void dropPlayer(String playerId){
+        BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        if (player == null) return;
         if(activePlayers.remove(player)) {
             onPlayerEndsTurn(); //A player leaving counts as ending their turn.
         }
     }
 
-    public void onPlayerHit(BlackjackPlayer p){
+    public void onPlayerHit(String playerId){
+        BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        if (player == null) return;
         //Deal a card unless the player has blackjack, busted out, or has already opted to stand.
         // This can all be determined with the hasEndedTurn boolean because that is kept current with those actions.
-        if(!p.getHasEndedTurn()){
-            p.push(deck.deal());
+        if(!player.getHasEndedTurn()){
+            player.push(deck.deal());
             onGameStateChange();
         }
-        if(p.getHand().getHandValue() >= 21) {
-            p.setHasEndedTurn(true);
+        if(player.getHand().getHandValue() >= 21) {
+            player.setHasEndedTurn(true);
             onPlayerEndsTurn();
         }
     }
 
-    public void onPlayerStand(BlackjackPlayer p){
+    public void onPlayerStand(String playerId){
+        BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        if (player == null) return;
         //Simply notify that the player is done taking their turn.
-        if(!p.getHasEndedTurn()){
-            p.setHasEndedTurn(true);
+        if(!player.getHasEndedTurn()){
+            player.setHasEndedTurn(true);
             onGameStateChange();
             onPlayerEndsTurn();
         }

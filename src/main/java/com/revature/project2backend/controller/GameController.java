@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.revature.GameLogic.AllGames.BaseGame;
 import com.revature.GameLogic.AllGames.GameRegistry;
@@ -13,16 +14,12 @@ import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 
 @Controller
 public class GameController {
@@ -35,35 +32,47 @@ public class GameController {
     }
 
     @PostMapping("createblackjackGame")
-    public String createBlackjackGame(@Header String lobbyName, @Header boolean lobbyIsPrivate) {
-        BaseGame<BlackjackPlayer> newGame = new BlackjackGame(lobbyName, lobbyIsPrivate);
+    public String createBlackjackGame(@RequestHeader String gameName, @RequestHeader boolean lobbyIsPrivate) {
+        BaseGame<BlackjackPlayer> newGame = new BlackjackGame(gameName, lobbyIsPrivate);
         GameRegistry.getGameRegistry().addNewGame(newGame);
         return newGame.getUrlSuffix();
     }
 
     @PutMapping("joinGame")
-    public void joinBlackjackGame(@Payload String gameUrl, @Header("simpSessionId") String sessionId) {
-        BaseGame game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameUrl);
+    public ResponseEntity<String> joinBlackjackGame(@Payload String gameUrl, @RequestHeader String sessionId) {
+        BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameUrl);
         BlackjackGame blackjackGame;
         if(game instanceof BlackjackGame){
             blackjackGame = (BlackjackGame)game;
         } else {
             //Error condition - the user is using joinBlackjackGame to attempt to join a non-blackjack game
+            return ResponseEntity.status(403).body("");
+        }
+        BlackjackPlayer p = new BlackjackPlayer();
+        blackjackGame.addPlayer(p);
+        return ResponseEntity.status(200).body(p.getUrlSuffix());
+    }
+
+    @PutMapping("blackjackAction")
+    public void doBlackjackAction(@Payload String gameUrl, @RequestHeader String sessionId, @RequestHeader String actionVerb){
+        BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameUrl);
+        BlackjackGame blackjackGame;
+        if(game instanceof BlackjackGame){
+            blackjackGame = (BlackjackGame)game;
+        } else {
+            //Error condition - the user is trying to do a blackjack action on a non-blackjack game
             return;
         }
-        blackjackGame.addPlayer(new BlackjackPlayer(sessionId));
-    }
 
-    @MessageMapping("/app/gamestate")
-    @SendTo("/blackjack/{tableID}")
-    public BlackjackClientGameState updateGameStateForAllPlayer(@Payload String FIXME){
-        return null;
+        switch(actionVerb){
+            case "HIT": //Player wants to take a new card
+                blackjackGame.onPlayerHit(sessionId);
+                break;
+            case "STAND": //Player wants to end their turn without taking any more cards
+                blackjackGame.onPlayerStand(sessionId);
+                break;
+            default: //User is trying to take an invalid action, like "kdlfsaghiufdshgi"
+        }
     }
-
-    //FIXME: Change these specific points to things that make more sense.
-    @MessageMapping("/app/player")
-    @SendToUser("/player/{sessionId}")
-    public void sendPlayerBlackjackGameState(BlackjackClientGameState state, @Header("simpSessionId") String sessionId){
-        simpMessageingTemplate.convertAndSendToUser(sessionId, "", state);
-    }
+    
 }
