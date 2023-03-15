@@ -6,15 +6,16 @@ import java.util.List;
 import com.revature.CardLogic.Card52;
 import com.revature.CardLogic.Hand52;
 
-public class BlackjackHand extends Hand52 {
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+public @NoArgsConstructor class BlackjackHand extends Hand52 {
+    @Getter
     private int handValue = 0;
-    private boolean hasBusted = false;
-
+    @Getter
+    private boolean isBustedOut = false;
+    @Getter
     private boolean isSoftHand = false;
-
-    public BlackjackHand() {
-
-    }
 
     public BlackjackHand(List<Card52> cards){
         push(cards);
@@ -93,14 +94,7 @@ public class BlackjackHand extends Hand52 {
             }
         }
         
-        if(handValue > 21) hasBusted = true;
+        if(handValue > 21) isBustedOut = true;
         return handValue;
     }
-
-    //handValue is always current with the cards that are in this hand, unless the hand
-    // was manually tampered with using getHand(). If that happens, use calculateHandValue() to get the new
-    // current value of the hand.
-    public int getHandValue() { return handValue; }
-    public boolean getHasBusted() { return hasBusted; }
-    public boolean getIsSoftHand() { return isSoftHand; }
 }

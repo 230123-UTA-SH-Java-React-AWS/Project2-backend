@@ -6,10 +6,17 @@ import com.revature.CardLogic.Card52;
 
 import com.revature.GameLogic.AllGames.BasePlayer;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
 public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     public enum EndGameStates {STILL_PLAYING, IS_BUSTED, DEALER_BUSTED, BLACKJACK, LOST_TO_DEALER, TIED_DEALER, BEAT_DEALER}
+    @Getter
     private BlackjackHand hand = new BlackjackHand();
-    private boolean hasEndedTurn = false;
+    @Getter @Setter
+    private boolean isTurnEnded = false;
+    @Getter @Setter @NonNull
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
 
     public BlackjackPlayer(){
@@ -22,28 +29,6 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
 
     public void push(List<Card52> cards){
         hand.push(cards);
-    }
-
-    public void setHasEndedTurn(boolean hasEndedTurn){
-        this.hasEndedTurn = hasEndedTurn;
-    }
-
-    public boolean getHasEndedTurn() {
-        return hasEndedTurn;
-    }
-
-    public BlackjackHand getHand() {
-        return hand;
-    }
-
-    public EndGameStates getEndGameState() {
-        return endGameState;
-    }
-
-    public void setEndGameState(EndGameStates endGameState) {
-        if(endGameState != null) {
-            this.endGameState = endGameState;
-        }
     }
 
     @Override

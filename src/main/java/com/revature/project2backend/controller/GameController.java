@@ -15,17 +15,12 @@ import com.revature.GameLogic.Blackjack.BlackjackPlayer;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Controller
 public class GameController {
-    @Autowired
-    private SimpMessagingTemplate simpMessageingTemplate;
-
+    
     @GetMapping("allGames")
     public List<GameRepresentation> getAllGames() {
         return GameRegistry.getGameRegistry().getPublicGames();

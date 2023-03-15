@@ -38,7 +38,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 //TODO: Instead of a "player name", this should be changed to a unique identifier that allows the frontend to
                 // retreive player info from the database.
                 "Jimothy" + rand.nextInt(),
-                p.getHasEndedTurn(),
+                p.isTurnEnded(),
                 p.getHand().getCards()));
         }
         BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), playerInfo);
@@ -57,7 +57,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     public void onPlayerEndsTurn() {
         //If all players have not yet finished their turn, we wait until they do.
         for (BlackjackPlayer blackjackPlayer : activePlayers) {
-            if(!blackjackPlayer.getHasEndedTurn()) return;
+            if(!blackjackPlayer.isTurnEnded()) return;
         }
         /*
          * All the players have taken their turn, now it is time for the dealer to have theirs.
@@ -69,7 +69,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
          */
         BlackjackHand dealerHand = dealer.getHand();
         while(dealerHand.getHandValue() <= 17) {
-            if(dealerHand.getHandValue() == 17 && !dealerHand.getIsSoftHand()) {
+            if(dealerHand.getHandValue() == 17 && !dealerHand.isSoftHand()) {
                 break; //Dealer stops on a 17 that is not a soft hand.
             }
             dealer.push(deck.deal());
@@ -88,7 +88,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                     player.setEndGameState(BlackjackPlayer.EndGameStates.TIED_DEALER);
                 } else {
                     //If the dealer busts, the player wins.
-                    if (dealerHand.getHasBusted()) {
+                    if (dealerHand.isBustedOut()) {
                         player.setEndGameState(BlackjackPlayer.EndGameStates.DEALER_BUSTED);
                     } else {
                         //If the player has a larger hand than the dealer, they win
@@ -120,7 +120,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         super.admitPlayers();
         for (BlackjackPlayer player : activePlayers
              ) {
-            player.setHasEndedTurn(false);
+            player.setTurnEnded(false);
         }
         //TODO: ASK PLAYERS TO PLACE A BET OR LEAVE THE TABLE NOW. IF THEY LEAVE THE TABLE, ADMIT SOMEONE NEW IN THEIR PLACE IF POSSIBLE.
 
@@ -143,12 +143,12 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         if (player == null) return;
         //Deal a card unless the player has blackjack, busted out, or has already opted to stand.
         // This can all be determined with the hasEndedTurn boolean because that is kept current with those actions.
-        if(!player.getHasEndedTurn()){
+        if(!player.isTurnEnded()){
             player.push(deck.deal());
             onGameStateChange();
         }
         if(player.getHand().getHandValue() >= 21) {
-            player.setHasEndedTurn(true);
+            player.setTurnEnded(true);
             onPlayerEndsTurn();
         }
     }
@@ -157,8 +157,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
         if (player == null) return;
         //Simply notify that the player is done taking their turn.
-        if(!player.getHasEndedTurn()){
-            player.setHasEndedTurn(true);
+        if(!player.isTurnEnded()){
+            player.setTurnEnded(true);
             onGameStateChange();
             onPlayerEndsTurn();
         }

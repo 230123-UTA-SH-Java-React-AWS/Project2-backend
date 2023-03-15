@@ -3,7 +3,10 @@ package com.revature.CardLogic;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 public class Hand52 {
+    @Getter
     protected List<Card52> cards = new ArrayList<>();
 
     public Hand52(){ }
@@ -11,8 +14,6 @@ public class Hand52 {
     public Hand52(List<Card52> cards){
         push(cards);
     }
-
-    public List<Card52> getCards() { return cards; }
 
     public List<Card52> push(Card52 card) {
         if(card != null) cards.add(card);

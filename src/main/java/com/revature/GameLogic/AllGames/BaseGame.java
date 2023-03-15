@@ -6,14 +6,20 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public abstract class BaseGame<T extends BasePlayer<?>> {
     public enum GameType {BLACKJACK}
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
+    @Getter
     protected String urlSuffix;
+    @Getter
     protected GameType gameType = null;
-
+    @Getter @Setter
     protected String gameName;
+    @Getter
     protected boolean isPrivateGame;
 
     protected Queue<T> waitingPlayers = new ConcurrentLinkedQueue<>();
@@ -33,15 +39,6 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         }
         urlSuffix = sb.toString();
     }
-
-    public String getUrlSuffix() { return urlSuffix; }
-
-    public String getGameName(){ return gameName; }
-    public void setGameName(String gameName) { this.gameName = gameName; }
-
-    public GameType getGameType(){ return gameType; }
-
-    public boolean getIsPrivateGame() { return isPrivateGame; }
 
     //Bring players from the waiting queue into the actual game.
     protected void admitPlayers(){

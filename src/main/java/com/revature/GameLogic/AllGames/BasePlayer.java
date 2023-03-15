@@ -5,6 +5,9 @@ import java.security.SecureRandom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import lombok.Getter;
+import lombok.Setter;
+
 //Represents a player who has successfully connected to a game. Each player should represent one person at the table,
 // with one connection established. Implementation left empty below pending discussion with team.
 public abstract class BasePlayer<T extends BaseClientGameState> {
@@ -12,7 +15,9 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     protected SimpMessagingTemplate simpMessagingTemplate;
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
+    @Getter
     protected String urlSuffix;
+    @Setter
     protected T clientGameState; //The game state that this client has.
 
     protected BasePlayer() {
@@ -31,12 +36,6 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     //This should be implemented here.
     //This should send data to the user so that they can display something like "Waiting for a free seat at the table, you are #2 / 6 in the queue."
     public abstract void sendWaitingData(int positionInQueue, int numWaitingPlayers);
-
-    public String getUrlSuffix() { return urlSuffix; }
-
-    public void setClientGameState(T clientGameState) {
-        this.clientGameState = clientGameState;
-    }
 
     public abstract void onMessageReceived();
 }

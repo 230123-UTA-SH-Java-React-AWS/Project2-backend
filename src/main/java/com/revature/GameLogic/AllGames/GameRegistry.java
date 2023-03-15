@@ -7,20 +7,19 @@ import java.util.Map;
 
 import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
 
+import lombok.Getter;
+
 public class GameRegistry {
     private static GameRegistry thisGameRegistry = null;
+    @Getter
     private static Map<String, BaseGame<?>> runningGames = new HashMap<>();
 
     private GameRegistry(){}
 
-    public Map<String, BaseGame<?>> getRunningGames() {
-        return runningGames;
-    }
-
     public List<GameRepresentation> getPublicGames() {
         List<GameRepresentation> games = new ArrayList<>();
         for(Map.Entry<String, BaseGame<?>> g : runningGames.entrySet()){
-            if(!g.getValue().getIsPrivateGame()){
+            if(!g.getValue().isPrivateGame()){
                 games.add(g.getValue().representation());
             }
         }
