@@ -21,18 +21,24 @@ function NewGame() {
         e.preventDefault();
         
         const requestConfig: AxiosRequestConfig = {
-            baseURL: `${BASE_URL}:${GAME_PORT}`,
+            baseURL: `http://${BASE_URL}:${GAME_PORT}`,
             headers: {
                 'gameName': gameName,
-                'lobbyIsPrivate': isPrivate,
+                'lobbyIsPrivate': "" + isPrivate,
                 'Content-Type': 'application/json'
             }
         }
 
-        const PATH = `/join${gameType}Game`;
+        console.log(requestConfig);
+        
 
-        axios.post(PATH, {}, requestConfig)
-        .then( (res) => navigate('/'))
+        const PATH = `/create${gameType}Game`;
+
+        axios.post<string>(PATH, {}, requestConfig)
+        .then((res) => {
+            console.log(res.data);
+            navigate('/' + gameType.toLowerCase() + '/' + res.data);
+        })
         .catch( (err) => console.log(err));
     }
 

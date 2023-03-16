@@ -6,20 +6,22 @@ import { BASE_URL, GAME_PORT } from "../static/defaults";
 
 function GameRoom() {
     const [games, setGames] = useState<GameRepresentation[] | null>(null);
+    const [gameUrl, setGameUrl] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
         const requestConfig: AxiosRequestConfig = {
-            baseURL: `${BASE_URL}:${GAME_PORT}`,
+            baseURL: `http://${BASE_URL}:${GAME_PORT}`,
             headers: {
                 'Content-Type': 'application/json'
             }
         }
 
-        const PATH = '/allGame';
+        const PATH = '/allGames';
 
-        axios.get(PATH, requestConfig)
-        .then( (res) => setGames(res.data.json))
+        axios.get<GameRepresentation[]>(PATH, requestConfig)
+        .then( (res) => {setGames(res.data); console.log(res.data);
+        })
         .catch( (err) => console.log(err));
 
     }, []);
@@ -27,7 +29,6 @@ function GameRoom() {
     const navigateToGame = (gameType:string, gameId:string) => {
         navigate('/' + gameType.toLowerCase() + '/' + gameId);
     }
-
     return (
         <>
             <ul>
@@ -35,6 +36,7 @@ function GameRoom() {
             </ul>
             <Link to='/newGame'>Create A Game</Link>
         </>
+
     );
 }
 
