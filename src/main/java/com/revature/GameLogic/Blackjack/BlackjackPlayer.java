@@ -20,8 +20,8 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     @Getter @Setter @NonNull
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
 
-    public BlackjackPlayer(GameController gameController){
-        super(gameController);
+    public BlackjackPlayer(){
+        super();
     }
 
     public void push(Card52 card){
@@ -38,7 +38,7 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
         System.out.println(playerId);
         System.out.println(clientGameState);
 
-        gameController.sendGameState(clientGameState, playerId);
+        GameController.sendGameState(clientGameState, playerId);
     }
 
     @Override

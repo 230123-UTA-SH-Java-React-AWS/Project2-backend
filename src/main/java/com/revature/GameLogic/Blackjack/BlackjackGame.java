@@ -13,7 +13,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Random rand = new Random(); //This should be removed later when the player names are refactored.
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
-    BlackjackPlayer dealer = new BlackjackPlayer(null);
+    BlackjackPlayer dealer = new BlackjackPlayer();
     
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 6);
@@ -23,7 +23,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     public void dealHands(){
         if(isGameStarted) return;
         deck = new MultiDeck52(6);
-        dealer = new BlackjackPlayer(null);
+        dealer = new BlackjackPlayer();
         dealer.push(deck.deal());
         admitPlayers();
         for(BlackjackPlayer p : activePlayers){

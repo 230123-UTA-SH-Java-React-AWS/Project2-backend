@@ -26,7 +26,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 @RestController
 public class GameController {
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private static SimpMessagingTemplate simpMessagingTemplate;
     
     @GetMapping("allGames")
     public List<GameRepresentation> getAllGames() {
@@ -55,7 +55,7 @@ public class GameController {
             return ResponseEntity.status(403).body("");
         }
         try{
-            BlackjackPlayer p = new BlackjackPlayer(this);
+            BlackjackPlayer p = new BlackjackPlayer();
             blackjackGame.addPlayer(p);
             return ResponseEntity.status(200).body(p.getPlayerId());
         } catch (Exception e){
@@ -100,11 +100,11 @@ public class GameController {
 
     //This will send a message to any player who is subscribed to the websocket /player/<player-id>
     //player-id is generated when a player is created (i.e. when they connect to a game) and passed to the frontend.
-    public void sendGameState(BaseClientGameState gameState, String playerId){
+    public static void sendGameState(BaseClientGameState gameState, String playerId){
         simpMessagingTemplate.convertAndSendToUser(playerId, "/game", gameState);
     }
 
-    public void sendQueueState(String playerId, int positionInQueue, int numWaitingPlayers){
+    public static void sendQueueState(String playerId, int positionInQueue, int numWaitingPlayers){
         simpMessagingTemplate.convertAndSendToUser(
             playerId,
             "/queue",

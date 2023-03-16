@@ -12,10 +12,9 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     protected final String playerId = IdGenerator.generate_id(); //A unique identifier for this player
     @Setter
     protected T clientGameState; //The game state that this client has.
-    protected GameController gameController; //A reference to the GameController so we can update the socket
 
-    protected BasePlayer(GameController gameController) {
-        this.gameController = gameController;
+    protected BasePlayer() {
+        
     }
 
     //Send the current game state to the client.
@@ -24,7 +23,7 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     //This should be implemented here.
     //This should send data to the user so that they can display something like "Waiting for a free seat at the table, you are #2 / 6 in the queue."
     public void sendWaitingData(int positionInQueue, int numWaitingPlayers){
-        gameController.sendQueueState(playerId, positionInQueue, numWaitingPlayers);
+        GameController.sendQueueState(playerId, positionInQueue, numWaitingPlayers);
     }
 
     public abstract void onMessageReceived();
