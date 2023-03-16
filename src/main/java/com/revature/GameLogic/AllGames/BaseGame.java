@@ -1,6 +1,5 @@
 package com.revature.GameLogic.AllGames;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,10 +12,9 @@ import lombok.Setter;
 
 public abstract class BaseGame<T extends BasePlayer<?>> {
     public enum GameType {BLACKJACK}
-    private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
     @Getter
-    protected String gameId; //A unique identifier for this game
+    protected String gameId = IdGenerator.generate_id(); //A unique identifier for this game
     @Getter
     protected GameType gameType = null; //Displays the game type (ex: Blackjack), used in the lobby display screen
     @Getter @Setter
@@ -35,14 +33,6 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         this.gameName = gameName;
         this.isPrivateGame = isPrivateGame;
         this.maxActivePlayers = maxActivePlayers;
-        SecureRandom rand = new SecureRandom();
-        StringBuilder sb = new StringBuilder(64);
-        for(int i = 0; i < 64; i++){
-            int pos = rand.nextInt() % URL_CHARS.length();
-            if(pos < 0) pos *= -1;
-            sb.append(URL_CHARS.charAt(pos));
-        }
-        gameId = sb.toString();
     }
 
     //Bring players from the waiting queue into the actual game.

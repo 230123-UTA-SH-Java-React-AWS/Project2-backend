@@ -1,7 +1,5 @@
 package com.revature.GameLogic.AllGames;
 
-import java.security.SecureRandom;
-
 import com.revature.project2backend.controller.GameController;
 
 import lombok.Getter;
@@ -10,24 +8,14 @@ import lombok.Setter;
 //Represents a player who has successfully connected to a game. Each player should represent one person at the table,
 // with one connection established. Implementation left empty below pending discussion with team.
 public abstract class BasePlayer<T extends BaseClientGameState> {
-    private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
-
     @Getter
-    protected String playerId; //A unique identifier for this player
+    protected final String playerId = IdGenerator.generate_id(); //A unique identifier for this player
     @Setter
     protected T clientGameState; //The game state that this client has.
     protected GameController gameController; //A reference to the GameController so we can update the socket
 
     protected BasePlayer(GameController gameController) {
         this.gameController = gameController;
-        SecureRandom rand = new SecureRandom();
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < 64; i++){
-            int pos = rand.nextInt() % URL_CHARS.length();
-            if(pos < 0) pos *= -1;
-            sb.append(URL_CHARS.charAt(pos));
-        }
-        playerId = sb.toString();
     }
 
     //Send the current game state to the client.
