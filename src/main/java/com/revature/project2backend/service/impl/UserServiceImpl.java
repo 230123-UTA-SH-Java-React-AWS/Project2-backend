@@ -3,6 +3,7 @@ package com.revature.project2backend.service.impl;
 import com.revature.project2backend.dto.AuthResponseDto;
 import com.revature.project2backend.dto.LoginDto;
 import com.revature.project2backend.dto.RegisterDto;
+import com.revature.project2backend.dto.UserDto;
 import com.revature.project2backend.exception.LoginNotValidException;
 import com.revature.project2backend.exception.RegisterNotValidException;
 import com.revature.project2backend.model.UserEntity;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +41,22 @@ public class UserServiceImpl implements UserService {
         this.jwtGenerator = jwtGenerator;
     }
 
-    //TODO: get rid of wildcard response entity
+    //TODO: clean up response to include user details like username, wins, and profile photo
+    public Optional<UserDto> getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            String userEmail = ((UserDetails) principal).getUsername();
+            Optional<UserEntity> user = userRepository.findByEmail(userEmail);
+            if (user.isPresent()) {
+                UserDto userDTO = new UserDto();
+                userDTO.setEmail(user.get().getEmail());
+                userDTO.setUsername(user.get().getUsername());
+                return Optional.of(userDTO);
+            }
+        }
+        return Optional.empty();
+    }
+
     //TODO: include user details like username, wins, and profile photo
     @Override
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto){

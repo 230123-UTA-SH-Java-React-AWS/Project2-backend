@@ -4,10 +4,13 @@ package com.revature.project2backend.controller;
 import com.revature.project2backend.dto.AuthResponseDto;
 import com.revature.project2backend.dto.LoginDto;
 import com.revature.project2backend.dto.RegisterDto;
+import com.revature.project2backend.dto.UserDto;
 import com.revature.project2backend.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,6 +31,11 @@ public class AuthController {
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
         return userService.register(registerDto);
+    }
+
+    @GetMapping("user")
+    public Optional<UserDto> getCurrentUser() {
+        return userService.getCurrentUser();
     }
 
 }
