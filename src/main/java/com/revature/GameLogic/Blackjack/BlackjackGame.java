@@ -13,7 +13,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Random rand = new Random(); //This should be removed later when the player names are refactored.
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
-    BlackjackPlayer dealer = new BlackjackPlayer();
+    BlackjackPlayer dealer = new BlackjackPlayer(null);
     
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 6);
@@ -22,10 +22,15 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
 
     public void dealHands(){
         deck = new MultiDeck52(6);
+        dealer = new BlackjackPlayer(null);
         dealer.push(deck.deal());
+        admitPlayers();
         for(BlackjackPlayer p : activePlayers){
+            p.getHand().getCards().clear();
+            p.setTurnEnded(false);
             p.push(deck.deal(2));
         }
+        onGameStateChange();
     }
 
     public void onGameStateChange(){
@@ -115,19 +120,6 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         //Now that the winners/losers have been determined, admitPlayers() should run again
         // which begins a new round.
         admitPlayers();
-    }
-
-    @Override
-    protected void admitPlayers() {
-        super.admitPlayers();
-        for (BlackjackPlayer player : activePlayers
-             ) {
-            player.setTurnEnded(false);
-        }
-        //TODO: ASK PLAYERS TO PLACE A BET OR LEAVE THE TABLE NOW. IF THEY LEAVE THE TABLE, ADMIT SOMEONE NEW IN THEIR PLACE IF POSSIBLE.
-
-        //This runs once everyone is connected so that everyone sees the new state of the table.
-        onGameStateChange();
     }
 
     //What happens when a player leaves the game via disconnection?

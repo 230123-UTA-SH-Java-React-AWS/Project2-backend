@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,9 +34,10 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         this.isPrivateGame = isPrivateGame;
         this.maxActivePlayers = maxActivePlayers;
         SecureRandom rand = new SecureRandom();
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
         for(int i = 0; i < 64; i++){
             int pos = rand.nextInt() % URL_CHARS.length();
+            if(pos < 0) pos *= -1;
             sb.append(URL_CHARS.charAt(pos));
         }
         urlSuffix = sb.toString();
@@ -78,21 +80,12 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         return new GameRepresentation(gameType, urlSuffix, gameName, activePlayers.size(), maxActivePlayers, waitingPlayers.size());
     }
 
-    public static class GameRepresentation {
+    public static @AllArgsConstructor class GameRepresentation {
         public final GameType gameType;
         public final String urlSuffix;
         public final String gameName;
         public final int numActivePlayers;
         public final int numMaxPlayers;
         public final int numWaitingPlayers;
-
-        protected GameRepresentation(GameType gameType, String urlSuffix, String gameName, int numActivePlayers, int numMaxPlayers, int numWaitingPlayers){
-            this.gameType = gameType;
-            this.urlSuffix = urlSuffix;
-            this.gameName = gameName;
-            this.numActivePlayers = numActivePlayers;
-            this.numMaxPlayers = numMaxPlayers;
-            this.numWaitingPlayers = numWaitingPlayers;
-        }
     }
 }

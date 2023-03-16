@@ -5,6 +5,7 @@ import java.util.List;
 import com.revature.CardLogic.Card52;
 
 import com.revature.GameLogic.AllGames.BasePlayer;
+import com.revature.project2backend.controller.GameController;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,8 +20,8 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     @Getter @Setter @NonNull
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
 
-    public BlackjackPlayer(){
-        super();
+    public BlackjackPlayer(GameController gameController){
+        super(gameController);
     }
 
     public void push(Card52 card){
@@ -33,7 +34,11 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
 
     @Override
     public void sendState() {
-        simpMessagingTemplate.convertAndSendToUser(urlSuffix, "", clientGameState);
+        System.out.println("[PLAYER INFO ---------------------------]");
+        System.out.println(urlSuffix);
+        System.out.println(clientGameState);
+
+        gameController.sendGameState(clientGameState, urlSuffix);
     }
 
     @Override

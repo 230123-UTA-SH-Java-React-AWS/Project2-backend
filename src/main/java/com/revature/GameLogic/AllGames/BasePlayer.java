@@ -2,8 +2,7 @@ package com.revature.GameLogic.AllGames;
 
 import java.security.SecureRandom;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.revature.project2backend.controller.GameController;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,20 +10,21 @@ import lombok.Setter;
 //Represents a player who has successfully connected to a game. Each player should represent one person at the table,
 // with one connection established. Implementation left empty below pending discussion with team.
 public abstract class BasePlayer<T extends BaseClientGameState> {
-    @Autowired
-    protected SimpMessagingTemplate simpMessagingTemplate;
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
     @Getter
     protected String urlSuffix;
     @Setter
     protected T clientGameState; //The game state that this client has.
+    protected GameController gameController;
 
-    protected BasePlayer() {
+    protected BasePlayer(GameController gameController) {
+        this.gameController = gameController;
         SecureRandom rand = new SecureRandom();
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < 64; i++){
             int pos = rand.nextInt() % URL_CHARS.length();
+            if(pos < 0) pos *= -1;
             sb.append(URL_CHARS.charAt(pos));
         }
         urlSuffix = sb.toString();
