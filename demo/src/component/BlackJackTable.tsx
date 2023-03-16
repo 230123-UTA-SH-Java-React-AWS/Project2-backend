@@ -4,6 +4,7 @@ import SockJS from 'sockjs-client';
 import { BlackjackClientGameState } from '../model/BlackjackClientGameState';
 import { BlackjackPlayerInfo } from '../model/BlackjackPlayerInfo';
 import { useParams } from 'react-router-dom';
+import { BASE_URL, GAME_PORT } from '../static/defaults';
 
 let stompClient: Client;
 
@@ -15,17 +16,24 @@ function BlackJackTable() {
     let { tableId } = useParams();
 
     const connect = () => {
-        let socket = new SockJS(`http://localhost:8080/ws`);
+        let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
         stompClient = over(socket);
         //TODO: remove console.log below
         stompClient.connect({}, onConnected, (e) => { console.log(e) });
     };
 
+    const disconnect = () => {
+        setIsConnected(false);
+        if (stompClient != null) {
+            stompClient.disconnect(() => console.log("Disconnected"));
+        }
+    }
+
     const onConnected = () => {
         setIsConnected(true);
-        // stompClient.subscribe('/blackjack/' + tableId, (payload) => { console.log(payload) });
+        stompClient.subscribe('/blackjack/' + tableId + '/', (payload) => { console.log(payload) });
         //Player subscription should be controlled by their session ID
-        stompClient.subscribe('/player/' + playerId + '/', (payload) => {
+        stompClient.subscribe('/player/' + playerId + '/blackjack', (payload) => {
             // if(payload instanceof BlackjackClientGameState) {
             //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
             // }
@@ -35,7 +43,7 @@ function BlackJackTable() {
     };
 
     const onHitAction = () => {
-       fetch(`http://localhost:8080/blackjackAction`, {
+       fetch(`http://${BASE_URL}:${GAME_PORT}/blackjackAction`, {
             method: "PUT",
             headers: {
                 "sessionId": playerId,
@@ -47,7 +55,7 @@ function BlackJackTable() {
     }
 
     const onStandAction = () => {
-        fetch(`http://localhost:8080/blackjackAction`, {
+        fetch(`http://${BASE_URL}:${GAME_PORT}/blackjackAction`, {
             method: "PUT",
             headers: {
                 "sessionId": playerId,
@@ -66,16 +74,37 @@ function BlackJackTable() {
             </li>);
     }
 
-    const handlePlayerId = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPlayerId(e.target.value);
+    const handleJoinGame = () => {
+        fetch(`http://${BASE_URL}:${GAME_PORT}/joinBlackjackGame`, {
+            method: "PUT",
+            headers: {
+                "gameId": `${tableId}`
+            }
+        })
+        .then( (res) => res.text())
+        .then( (data) => setPlayerId(data))
+        .catch( (err) => console.log(err));
+    }
+
+    const handleStartGame = () => {
+        fetch(`http://${BASE_URL}:${GAME_PORT}/startBlackjackGame`, {
+            method: "PUT",
+            headers: {
+                gameId: `${tableId}`
+            }
+        })
+        .then( (res) => console.log(res))
+        .catch( (err) => console.log(err));
     }
     
     return (
         <div>
             <button type='button' onClick={connect} disabled={isConnected}>Connect</button>
-            <input type='text' onChange={(e) => handlePlayerId(e)} />
-            <button type='button' onClick={onHitAction} disabled={!isConnected} >HIT</button>
-            <button type='button' onClick={onStandAction} disabled={!isConnected} >STAND</button>
+            <button type='button' onClick={disconnect} disabled={!isConnected}>Disconnect</button>
+            <button type='button' onClick={handleJoinGame}>Join Game</button>
+            <button type='button' onClick={handleStartGame}>Start Game</button>
+            {/* <button type='button' onClick={onHitAction} disabled={!isConnected} >HIT</button>
+            <button type='button' onClick={onStandAction} disabled={!isConnected} >STAND</button> */}
         </div>
     );
 }

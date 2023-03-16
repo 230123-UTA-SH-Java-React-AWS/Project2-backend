@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL, GAME_PORT } from "../static/defaults";
 
 function NewGame() {
     const [gameType, setGameType] = useState<string>("");
@@ -18,7 +19,7 @@ function NewGame() {
     const handleNewGame = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
-        fetch(`http://localhost:8080/create${gameType}Game`, {
+        fetch(`http://${BASE_URL}:${GAME_PORT}/create${gameType}Game`, {
             method: "POST",
             headers: {
                 "gameName": `${gameName}`,
@@ -26,10 +27,7 @@ function NewGame() {
             },
 
         })
-        .then( (res) => {
-            console.log(res);
-            // navigate('/' + gameType + '/' + res.toString());
-        })
+        .then( () => navigate('/')) 
         .catch( (err) => console.log(err));
     }
 
@@ -39,7 +37,7 @@ function NewGame() {
                 <input type='text' onChange={(e) => handleGameName(e)}/>
                 <select onChange={(e) => handleGameType(e)}>
                     <option value="">New Game Options</option>
-                    <option value="blackjack">Blackjack</option>
+                    <option value="Blackjack">Blackjack</option>
                 </select>
                 <button type="submit" onClick={(e) => {
                     setIsPrivate(false);

@@ -14,11 +14,11 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<NewGame />} />
-        <Route path='/blackjack/{tableId}' element={<BlackJackTable />} />
+        <Route path='/' element={<App />} />
+        <Route path='/newGame' element={<NewGame />} />
+        <Route path='/blackjack/:tableId' element={<BlackJackTable />} />
       </Routes>
     </BrowserRouter>
-    <App />
   </React.StrictMode>
 );
 

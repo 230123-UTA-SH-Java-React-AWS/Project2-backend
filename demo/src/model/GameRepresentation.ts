@@ -1,6 +1,6 @@
 export class GameRepresentation {
     gameType: string;
-    urlSuffix: string;
+    gameId: string;
     gameName: string;
     numActivePlayers: number;
     numMaxPlayers: number;
@@ -8,13 +8,13 @@ export class GameRepresentation {
 
     constructor(
         gameType: string,
-        urlSuffix: string,
+        gameId: string,
         gameName: string,
         numActivePlayers: number,
         numMaxPlayers: number,
         numWaitingPlayers: number) {
         this.gameType = gameType;
-        this.urlSuffix = urlSuffix;
+        this.gameId = gameId;
         this.gameName = gameName;
         this.numActivePlayers = numActivePlayers;
         this.numMaxPlayers = numMaxPlayers;
