@@ -26,15 +26,16 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 @RestController
 public class GameController {
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-    
+    private static SimpMessagingTemplate simpMessagingTemplate;
+
     @GetMapping("allGames")
     public List<GameRepresentation> getAllGames() {
         return GameRegistry.getGameRegistry().getPublicGames();
     }
 
     @PostMapping("createBlackjackGame")
-    public ResponseEntity<String> createBlackjackGame(@RequestHeader String gameName, @RequestHeader boolean lobbyIsPrivate) {
+    public ResponseEntity<String> createBlackjackGame(@RequestHeader String gameName,
+            @RequestHeader boolean lobbyIsPrivate) {
         try {
             BaseGame<BlackjackPlayer> newGame = new BlackjackGame(gameName, lobbyIsPrivate);
             GameRegistry.getGameRegistry().addNewGame(newGame);
@@ -48,67 +49,72 @@ public class GameController {
     public ResponseEntity<String> joinBlackjackGame(@RequestHeader String gameId) {
         BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
-        if(game instanceof BlackjackGame){
-            blackjackGame = (BlackjackGame)game;
+        if (game instanceof BlackjackGame) {
+            blackjackGame = (BlackjackGame) game;
         } else {
-            //Error condition - the user is using joinBlackjackGame to attempt to join a non-blackjack game
+            // Error condition - the user is using joinBlackjackGame to attempt to join a
+            // non-blackjack game
             return ResponseEntity.status(403).body("");
         }
-        try{
+        try {
             BlackjackPlayer p = new BlackjackPlayer(this);
             blackjackGame.addPlayer(p);
             return ResponseEntity.status(200).body(p.getPlayerId());
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
     }
 
     @PutMapping("startBlackjackGame")
-    public void startBlackjackGame(@RequestHeader String gameId){
+    public void startBlackjackGame(@RequestHeader String gameId) {
         BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
-        if(game instanceof BlackjackGame){
-            blackjackGame = (BlackjackGame)game;
+        if (game instanceof BlackjackGame) {
+            blackjackGame = (BlackjackGame) game;
         } else {
-            //Error condition - the user is using joinBlackjackGame to attempt to join a non-blackjack game
+            // Error condition - the user is using joinBlackjackGame to attempt to join a
+            // non-blackjack game
             return;
         }
         blackjackGame.dealHands();
     }
 
     @PutMapping("blackjackAction")
-    public void doBlackjackAction(@Payload String gameId, @RequestHeader String playerId, @RequestHeader String actionVerb){
+    public void doBlackjackAction(@Payload String gameId, @RequestHeader String playerId,
+            @RequestHeader String actionVerb) {
         BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
-        if(game instanceof BlackjackGame){
-            blackjackGame = (BlackjackGame)game;
+        if (game instanceof BlackjackGame) {
+            blackjackGame = (BlackjackGame) game;
         } else {
-            //Error condition - the user is trying to do a blackjack action on a non-blackjack game
+            // Error condition - the user is trying to do a blackjack action on a
+            // non-blackjack game
             return;
         }
 
-        switch(actionVerb){
-            case "HIT": //Player wants to take a new card
+        switch (actionVerb) {
+            case "HIT": // Player wants to take a new card
                 blackjackGame.onPlayerHit(playerId);
                 break;
-            case "STAND": //Player wants to end their turn without taking any more cards
+            case "STAND": // Player wants to end their turn without taking any more cards
                 blackjackGame.onPlayerStand(playerId);
                 break;
-            default: //User is trying to take an invalid action, like "kdlfsaghiufdshgi"
+            default: // User is trying to take an invalid action, like "kdlfsaghiufdshgi"
         }
     }
 
-    //This will send a message to any player who is subscribed to the websocket /player/<player-id>
-    //player-id is generated when a player is created (i.e. when they connect to a game) and passed to the frontend.
-    public void sendGameState(BaseClientGameState gameState, String playerId){
+    // This will send a message to any player who is subscribed to the websocket
+    // /player/<player-id>
+    // player-id is generated when a player is created (i.e. when they connect to a
+    // game) and passed to the frontend.
+    public static void sendGameState(BaseClientGameState gameState, String playerId) {
         simpMessagingTemplate.convertAndSendToUser(playerId, "/game", gameState);
     }
 
-    public void sendQueueState(String playerId, int positionInQueue, int numWaitingPlayers){
+    public static void sendQueueState(String playerId, int positionInQueue, int numWaitingPlayers) {
         simpMessagingTemplate.convertAndSendToUser(
-            playerId,
-            "/queue",
-            new QueueState(positionInQueue, numWaitingPlayers)
-        );
+                playerId,
+                "/queue",
+                new QueueState(positionInQueue, numWaitingPlayers));
     }
 }
