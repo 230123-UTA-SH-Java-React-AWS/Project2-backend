@@ -13,10 +13,10 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
     @Getter
-    protected String playerId;
+    protected String playerId; //A unique identifier for this player
     @Setter
     protected T clientGameState; //The game state that this client has.
-    protected GameController gameController;
+    protected GameController gameController; //A reference to the GameController so we can update the socket
 
     protected BasePlayer(GameController gameController) {
         this.gameController = gameController;

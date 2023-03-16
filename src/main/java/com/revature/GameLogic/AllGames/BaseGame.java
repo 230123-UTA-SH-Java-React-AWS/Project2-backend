@@ -16,13 +16,15 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
     @Getter
-    protected String gameId;
+    protected String gameId; //A unique identifier for this game
     @Getter
-    protected GameType gameType = null;
+    protected GameType gameType = null; //Displays the game type (ex: Blackjack), used in the lobby display screen
     @Getter @Setter
-    protected String gameName;
+    protected String gameName; //The name of the game, as defined by a player (ex: "Connor's Blackjack Game")
     @Getter
-    protected boolean isPrivateGame;
+    protected boolean isPrivateGame; //Used to determine whether or not this game is shown by the listGames endpoint
+    @Getter
+    protected boolean isGameStarted; //Used to determine if a game is in progress (and thus if more players can be admitted)
 
     protected Queue<T> waitingPlayers = new ConcurrentLinkedQueue<>();
     protected List<T> activePlayers = new ArrayList<>();
@@ -45,10 +47,12 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
 
     //Bring players from the waiting queue into the actual game.
     protected void admitPlayers(){
+        if(isGameStarted) return; //Cannot allow players in if the game is in progress
         while(activePlayers.size() < maxActivePlayers && !waitingPlayers.isEmpty()) {
             activePlayers.add(waitingPlayers.remove());
         }
         updateWaitingPlayers();
+        isGameStarted = true;
     }
 
     public void addPlayer(T player){

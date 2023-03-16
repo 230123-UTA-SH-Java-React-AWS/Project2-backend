@@ -21,6 +21,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void dealHands(){
+        if(isGameStarted) return;
         deck = new MultiDeck52(6);
         dealer = new BlackjackPlayer(null);
         dealer.push(deck.deal());
@@ -117,9 +118,10 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             onGameStateChange();
         }
 
-        //Now that the winners/losers have been determined, admitPlayers() should run again
+        //Now that the winners/losers have been determined, dealHands() should run again
         // which begins a new round.
-        admitPlayers();
+        isGameStarted = false;
+        dealHands();
     }
 
     //What happens when a player leaves the game via disconnection?
