@@ -1,5 +1,6 @@
 package com.revature.project2backend.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.revature.GameLogic.AllGames.BaseClientGameState;
 import com.revature.GameLogic.AllGames.BaseGame;
 import com.revature.GameLogic.AllGames.GameRegistry;
+import com.revature.GameLogic.AllGames.QueueState;
 import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
@@ -20,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+@CrossOrigin
 @RestController
 public class GameController {
     @Autowired
@@ -98,6 +101,14 @@ public class GameController {
     //This will send a message to any player who is subscribed to the websocket /player/<player-id>
     //player-id is generated when a player is created (i.e. when they connect to a game) and passed to the frontend.
     public void sendGameState(BaseClientGameState gameState, String playerId){
-        simpMessagingTemplate.convertAndSendToUser(playerId, "blackjack", gameState);
+        simpMessagingTemplate.convertAndSendToUser(playerId, "/game", gameState);
+    }
+
+    public void sendQueueState(String playerId, int positionInQueue, int numWaitingPlayers){
+        simpMessagingTemplate.convertAndSendToUser(
+            playerId,
+            "/queue",
+            new QueueState(positionInQueue, numWaitingPlayers)
+        );
     }
 }
