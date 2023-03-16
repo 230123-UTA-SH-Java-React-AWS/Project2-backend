@@ -27,7 +27,7 @@ public class GameRegistry {
     }
 
     public void addNewGame(BaseGame<?> newGame){
-        runningGames.put(newGame.getUrlSuffix(), newGame);
+        runningGames.put(newGame.getGameId(), newGame);
     }
 
     //I don't even know what SonarLint is mad about here.

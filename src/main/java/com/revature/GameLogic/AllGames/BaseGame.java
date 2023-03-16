@@ -16,7 +16,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
     @Getter
-    protected String urlSuffix;
+    protected String gameId;
     @Getter
     protected GameType gameType = null;
     @Getter @Setter
@@ -40,7 +40,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
             if(pos < 0) pos *= -1;
             sb.append(URL_CHARS.charAt(pos));
         }
-        urlSuffix = sb.toString();
+        gameId = sb.toString();
     }
 
     //Bring players from the waiting queue into the actual game.
@@ -71,18 +71,18 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
 
     protected T getActivePlayerByUrlSuffix(String playerId){
         for(T player : activePlayers){
-            if(Objects.equals(player.getUrlSuffix(), playerId)) return player;
+            if(Objects.equals(player.getPlayerId(), playerId)) return player;
         }
         return null;
     }
 
     public GameRepresentation representation(){
-        return new GameRepresentation(gameType, urlSuffix, gameName, activePlayers.size(), maxActivePlayers, waitingPlayers.size());
+        return new GameRepresentation(gameType, gameId, gameName, activePlayers.size(), maxActivePlayers, waitingPlayers.size());
     }
 
     public static @AllArgsConstructor class GameRepresentation {
         public final GameType gameType;
-        public final String urlSuffix;
+        public final String gameId;
         public final String gameName;
         public final int numActivePlayers;
         public final int numMaxPlayers;

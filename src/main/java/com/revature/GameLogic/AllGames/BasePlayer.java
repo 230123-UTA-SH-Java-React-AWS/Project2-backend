@@ -13,7 +13,7 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     private static final String URL_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890";
 
     @Getter
-    protected String urlSuffix;
+    protected String playerId;
     @Setter
     protected T clientGameState; //The game state that this client has.
     protected GameController gameController;
@@ -27,7 +27,7 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
             if(pos < 0) pos *= -1;
             sb.append(URL_CHARS.charAt(pos));
         }
-        urlSuffix = sb.toString();
+        playerId = sb.toString();
     }
 
     //Send the current game state to the client.

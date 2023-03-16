@@ -35,10 +35,10 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     @Override
     public void sendState() {
         System.out.println("[PLAYER INFO ---------------------------]");
-        System.out.println(urlSuffix);
+        System.out.println(playerId);
         System.out.println(clientGameState);
 
-        gameController.sendGameState(clientGameState, urlSuffix);
+        gameController.sendGameState(clientGameState, playerId);
     }
 
     @Override
