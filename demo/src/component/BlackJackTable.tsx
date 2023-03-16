@@ -8,47 +8,55 @@ import { useParams } from 'react-router-dom';
 let stompClient: Client;
 
 function BlackJackTable() {
+    const [isConnected, setIsConnected] = useState<boolean>(false);
     const [playerId, setPlayerId] = useState<string>("");
     const [gameState, setGameState] = useState<BlackjackClientGameState>();
 
     let { tableId } = useParams();
 
     const connect = () => {
-        fetch(`http://localhost:8080/joinGame`, {
-            method: "PUT",
-            body: tableId
-        })
-        .then( (res) => setPlayerId(res.toString()))
-        .catch( (err) => console.log(err));
-
         let socket = new SockJS(`http://localhost:8080/ws`);
         stompClient = over(socket);
         //TODO: remove console.log below
-        stompClient.connect({}, onConnect, (e) => { console.log(e) });
+        stompClient.connect({}, onConnected, (e) => { console.log(e) });
     };
 
-    //Axios request
-    // ask the backend to create a game
-    // once the backend creates a game it will pass the URL back to here, and then we connect to it with the new URL provided
-    //  connecting to the new game endpoint will give us a new player endpoint?
-
-    const onConnect = () => {
-        stompClient.subscribe('/blackjack/' + tableId, (payload) => { console.log(payload) });
+    const onConnected = () => {
+        setIsConnected(true);
+        // stompClient.subscribe('/blackjack/' + tableId, (payload) => { console.log(payload) });
         //Player subscription should be controlled by their session ID
-        stompClient.subscribe('/player/' + playerId, (payload) => {
-            if(payload instanceof BlackjackClientGameState) {
-                setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
-            }
+        stompClient.subscribe('/player/' + playerId + '/', (payload) => {
+            // if(payload instanceof BlackjackClientGameState) {
+            //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
+            // }
             
             console.log(payload);
         });
     };
 
     const onHitAction = () => {
-        stompClient.send('/app/gamestate', {}, JSON.stringify({"cards": [{"suit":"CLUB", "rank":"TWO"}, {"suit":"CLUB", "rank":"THREE"}]}));
+       fetch(`http://localhost:8080/blackjackAction`, {
+            method: "PUT",
+            headers: {
+                "sessionId": playerId,
+                "actionVerb":"HIT"
+            },
+            body:tableId
+        })
+        .catch( (err) => console.log(err)); 
     }
 
-    const onStandAction = () => {}
+    const onStandAction = () => {
+        fetch(`http://localhost:8080/blackjackAction`, {
+            method: "PUT",
+            headers: {
+                "sessionId": playerId,
+                "actionVerb":"STAND"
+            },
+            body:tableId
+        })
+        .catch( (err) => console.log(err));
+    }
     
     let playerList: any;
     if (typeof gameState != 'undefined') {
@@ -57,11 +65,17 @@ function BlackJackTable() {
                 {player.playerName} has {"" + player.cards} and has{player.hasTakenTurn? "" : " not"} finished drawing cards.
             </li>);
     }
+
+    const handlePlayerId = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPlayerId(e.target.value);
+    }
     
     return (
         <div>
-            <button type='button' onClick={onHitAction}>HIT</button>
-            <button type='button' onClick={onStandAction}>STAND</button>
+            <button type='button' onClick={connect} disabled={isConnected}>Connect</button>
+            <input type='text' onChange={(e) => handlePlayerId(e)} />
+            <button type='button' onClick={onHitAction} disabled={!isConnected} >HIT</button>
+            <button type='button' onClick={onStandAction} disabled={!isConnected} >STAND</button>
         </div>
     );
 }

@@ -7,6 +7,14 @@ function NewGame() {
     const [isPrivate, setIsPrivate] = useState<boolean>(false);
     const navigate = useNavigate();
 
+    const handleGameType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setGameType(e.target.value);
+    }
+
+    const handleGameName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setGameName(e.target.value);
+    }
+
     const handleNewGame = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
@@ -18,15 +26,18 @@ function NewGame() {
             },
 
         })
-        .then( (res) => (navigate('/' + gameType + '/' + res.toString())))
+        .then( (res) => {
+            console.log(res);
+            // navigate('/' + gameType + '/' + res.toString());
+        })
         .catch( (err) => console.log(err));
     }
 
     return (
         <>
             <form>
-                <input type='text' />
-                <select>
+                <input type='text' onChange={(e) => handleGameName(e)}/>
+                <select onChange={(e) => handleGameType(e)}>
                     <option value="">New Game Options</option>
                     <option value="blackjack">Blackjack</option>
                 </select>
