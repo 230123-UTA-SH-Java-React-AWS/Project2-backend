@@ -1,3 +1,4 @@
+import axios, { AxiosRequestConfig } from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL, GAME_PORT } from "../static/defaults";
@@ -18,16 +19,20 @@ function NewGame() {
 
     const handleNewGame = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-
-        fetch(`http://${BASE_URL}:${GAME_PORT}/create${gameType}Game`, {
-            method: "POST",
+        
+        const requestConfig: AxiosRequestConfig = {
+            baseURL: `${BASE_URL}:${GAME_PORT}`,
             headers: {
-                "gameName": `${gameName}`,
-                "lobbyIsPrivate": `${isPrivate}`
-            },
+                'gameName': gameName,
+                'lobbyIsPrivate': isPrivate,
+                'Content-Type': 'application/json'
+            }
+        }
 
-        })
-        .then( () => navigate('/')) 
+        const PATH = `/join${gameType}Game`;
+
+        axios.post(PATH, {}, requestConfig)
+        .then( (res) => navigate('/'))
         .catch( (err) => console.log(err));
     }
 

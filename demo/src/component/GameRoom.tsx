@@ -1,3 +1,4 @@
+import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GameRepresentation } from "../model/GameRepresentation";
@@ -8,10 +9,19 @@ function GameRoom() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`http://${BASE_URL}:${GAME_PORT}/allGames`)
-        .then( (res) => res.json())
-        .then( (data) => setGames(data))
+        const requestConfig: AxiosRequestConfig = {
+            baseURL: `${BASE_URL}:${GAME_PORT}`,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        const PATH = '/allGame';
+
+        axios.get(PATH, requestConfig)
+        .then( (res) => setGames(res.data.json))
         .catch( (err) => console.log(err));
+
     }, []);
 
     const navigateToGame = (gameType:string, gameId:string) => {

@@ -5,6 +5,7 @@ import { BlackjackClientGameState } from '../model/BlackjackClientGameState';
 import { BlackjackPlayerInfo } from '../model/BlackjackPlayerInfo';
 import { useParams } from 'react-router-dom';
 import { BASE_URL, GAME_PORT } from '../static/defaults';
+import axios, { AxiosRequestConfig } from 'axios';
 
 let stompClient: Client;
 
@@ -43,26 +44,38 @@ function BlackJackTable() {
     };
 
     const onHitAction = () => {
-       fetch(`http://${BASE_URL}:${GAME_PORT}/blackjackAction`, {
-            method: "PUT",
+        const requestConfig: AxiosRequestConfig = {
+            baseURL: `${BASE_URL}:${GAME_PORT}`,
             headers: {
-                "sessionId": playerId,
-                "actionVerb":"HIT"
-            },
-            body:tableId
-        })
-        .catch( (err) => console.log(err)); 
+                'sessionId': playerId,
+                'actionVerb':"HIT",
+                'Content-Type': 'application/json'
+            }
+        }
+
+        const PATH = '/blackjackAction';
+
+        axios.put(PATH, {
+        tableId
+        }, requestConfig)
+        .catch( (err) => console.log(err));
     }
 
     const onStandAction = () => {
-        fetch(`http://${BASE_URL}:${GAME_PORT}/blackjackAction`, {
-            method: "PUT",
+        const requestConfig: AxiosRequestConfig = {
+            baseURL: `${BASE_URL}:${GAME_PORT}`,
             headers: {
-                "sessionId": playerId,
-                "actionVerb":"STAND"
-            },
-            body:tableId
-        })
+                'sessionId': playerId,
+                'actionVerb':"STAND",
+                'Content-Type': 'application/json'
+            }
+        }
+
+        const PATH = '/blackjackAction';
+
+        axios.put(PATH, {
+        tableId
+        }, requestConfig)
         .catch( (err) => console.log(err));
     }
     
@@ -75,25 +88,38 @@ function BlackJackTable() {
     }
 
     const handleJoinGame = () => {
-        fetch(`http://${BASE_URL}:${GAME_PORT}/joinBlackjackGame`, {
-            method: "PUT",
+        const requestConfig: AxiosRequestConfig = {
+            baseURL: `${BASE_URL}:${GAME_PORT}`,
             headers: {
-                "gameId": `${tableId}`
+                'gameId': tableId,
+                'Content-Type': 'application/json'
             }
-        })
-        .then( (res) => res.text())
-        .then( (data) => setPlayerId(data))
+        }
+
+        const PATH = '/joinblackjackGame';
+
+        axios.put(PATH, {
+        tableId
+        }, requestConfig)
+        .then( (res) => setPlayerId(res.data))
         .catch( (err) => console.log(err));
     }
 
     const handleStartGame = () => {
-        fetch(`http://${BASE_URL}:${GAME_PORT}/startBlackjackGame`, {
-            method: "PUT",
+        const requestConfig: AxiosRequestConfig = {
+            baseURL: `${BASE_URL}:${GAME_PORT}`,
             headers: {
-                gameId: `${tableId}`
+                'gameId': tableId,
+                'Content-Type': 'application/json'
             }
-        })
-        .then( (res) => console.log(res))
+        }
+
+        const PATH = '/startblackjackGame';
+
+        axios.put(PATH, {
+        tableId
+        }, requestConfig)
+        .then( (res) => console.log(res.data))
         .catch( (err) => console.log(err));
     }
     
