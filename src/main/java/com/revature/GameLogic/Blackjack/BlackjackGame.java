@@ -21,7 +21,9 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void dealHands(){
+        System.out.println("Attempting to deal");
         if(isGameStarted) return;
+        System.out.println("Dealing");
         deck = new MultiDeck52(6);
         dealer = new BlackjackPlayer();
         dealer.push(deck.deal());
@@ -46,18 +48,23 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 "Jimothy" + rand.nextInt(),
                 p.isTurnEnded(),
                 p.getHand().getCards()));
+                System.out.print(p + "   ");
+            System.out.println(p.getHand().getHandValue());
         }
         BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), playerInfo);
+        System.out.println(gameState);
 
         for(BlackjackPlayer p : activePlayers){
             p.setClientGameState(gameState); //Update everyone's game state
             p.sendState(); //Send the new game state to all connected clients
         }
+
+        updateWaitingPlayers();
     }
 
     /**
      * This method handles the logic associated with ending the game -- specifically, this means handling the
-     *  dealer's turn. THe general flow of this function is as follows:
+     *  dealer's turn. The general flow of this function is as follows:
      *  - Do nothing unless all players have completed their turns
      *  - The dealer can take their cards, updating the players each time they do so
      *  - Winners and losers can be determined.
@@ -118,10 +125,10 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             onGameStateChange();
         }
 
-        //Now that the winners/losers have been determined, dealHands() should run again
-        // which begins a new round.
+        //Now that the winners/losers have been determined, the game is now ended and should be started again
+        // either by a player or after some time automatically.
         isGameStarted = false;
-        dealHands();
+        onGameStateChange();
     }
 
     //What happens when a player leaves the game via disconnection?
@@ -135,22 +142,30 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void onPlayerHit(String playerId){
+        System.out.println("Player attempting to hit");
+        if(!isGameStarted) return;
+        System.out.println("Player hitting");
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        System.out.println(player + " took the action");
         if (player == null) return;
         //Deal a card unless the player has blackjack, busted out, or has already opted to stand.
         // This can all be determined with the hasEndedTurn boolean because that is kept current with those actions.
         if(!player.isTurnEnded()){
             player.push(deck.deal());
+            if(player.getHand().getHandValue() >= 21) {
+                player.setTurnEnded(true);
+                onPlayerEndsTurn();
+            }
             onGameStateChange();
-        }
-        if(player.getHand().getHandValue() >= 21) {
-            player.setTurnEnded(true);
-            onPlayerEndsTurn();
         }
     }
 
     public void onPlayerStand(String playerId){
+        System.out.println("Player attempting to stand");
+        if(!isGameStarted) return;
+        System.out.println("Player standing");
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        System.out.println(player + " took the action");
         if (player == null) return;
         //Simply notify that the player is done taking their turn.
         if(!player.isTurnEnded()){

@@ -47,6 +47,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
 
     public void addPlayer(T player){
         waitingPlayers.add(player);
+        System.out.println("A new player was added to the waiting list for: " + this);
     }
 
     public void updateWaitingPlayers(){
@@ -54,12 +55,6 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         for(T player : waitingPlayers){
             player.sendWaitingData(i, waitingPlayers.size());
             i++;
-        }
-    }
-
-    public void updateActivePlayers(){
-        for(T player : activePlayers){
-            player.sendState();
         }
     }
 

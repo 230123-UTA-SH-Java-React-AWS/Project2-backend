@@ -33,15 +33,6 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     }
 
     @Override
-    public void sendState() {
-        System.out.println("[PLAYER INFO ---------------------------]");
-        System.out.println(playerId);
-        System.out.println(clientGameState);
-
-        GameController.sendGameState(clientGameState, playerId);
-    }
-
-    @Override
     public void sendWaitingData(int pos, int total){
         //unimplemented at this time because I still need to figure out websockets.
     }
