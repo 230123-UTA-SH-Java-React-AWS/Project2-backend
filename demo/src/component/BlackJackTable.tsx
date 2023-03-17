@@ -19,6 +19,40 @@ function BlackJackTable() {
 
     let { tableId } = useParams();
 
+    useEffect(() => {(async () => {
+        await handleJoinGame();
+        let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
+        stompClient = over(socket);
+        // TODO: remove console.log below
+        await stompClient.connect({}, () => {
+        setIsConnected(true);
+        if (stompClient.connected) {
+            stompClient.subscribe('/player/' + playerId + '/queue', (payload) => { 
+                console.log(payload) 
+            });
+            
+            //Player subscription should be controlled by their session ID
+            stompClient.subscribe('/player/' + playerId + '/game', (payload) => {
+                // if(payload instanceof BlackjackClientGameState) {
+                //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
+                // }
+                
+                console.log(payload);
+            });
+        } else {
+            //TODO handle connection failure
+        }
+        }, (e) => { console.log("Error: " + e) })})();
+        
+        return () => {
+            setIsConnected(false);
+            if(stompClient != null) {
+                console.log(stompClient);
+                stompClient.disconnect(() => console.log("Disconnected"));
+            }
+        };
+    }, []);
+
     const connect = () => {
         let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
         stompClient = over(socket);
