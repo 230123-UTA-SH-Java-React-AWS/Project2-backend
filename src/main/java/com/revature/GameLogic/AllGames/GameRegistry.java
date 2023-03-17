@@ -1,20 +1,38 @@
 package com.revature.GameLogic.AllGames;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
+
+import lombok.Getter;
 
 public class GameRegistry {
     private static GameRegistry thisGameRegistry = null;
-    private List<BaseGame> runningGames = new ArrayList<>();
+    @Getter
+    private static Map<String, BaseGame<?>> runningGames = new HashMap<>();
 
     private GameRegistry(){}
 
-    public List<BaseGame> getRunningGames() {
-        return this.runningGames;
+    public List<GameRepresentation> getPublicGames() {
+        List<GameRepresentation> games = new ArrayList<>();
+        for(Map.Entry<String, BaseGame<?>> g : runningGames.entrySet()){
+            if(!g.getValue().isPrivateGame()){
+                games.add(g.getValue().representation());
+            }
+        }
+        return games;
     }
 
-    public void setRunningGames(List<BaseGame> runningGames) {
-        this.runningGames = runningGames;
+    public void addNewGame(BaseGame<?> newGame){
+        runningGames.put(newGame.getGameId(), newGame);
+    }
+
+    //I don't even know what SonarLint is mad about here.
+    public BaseGame<?> getGameByUrlSuffix(String urlSuffix){
+        return runningGames.get(urlSuffix);
     }
 
     public static GameRegistry getGameRegistry(){

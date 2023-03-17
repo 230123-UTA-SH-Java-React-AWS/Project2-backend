@@ -1,5 +1,7 @@
 package com.revature.CardLogic;
 
+import lombok.Getter;
+
 public class Card52 implements Comparable<Card52> {
     public enum Suit {
         SPADE, HEART, CLUB, DIAMOND
@@ -9,7 +11,10 @@ public class Card52 implements Comparable<Card52> {
         TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
     }
 
+    //Both a card's suit and rank are guaranteed non-null
+    @Getter
     protected Suit suit;
+    @Getter
     protected Rank rank;
 
     public Card52(Suit suit, Rank rank) {
@@ -18,16 +23,6 @@ public class Card52 implements Comparable<Card52> {
         }
         this.suit = suit;
         this.rank = rank;
-    }
-
-    //this.suit is guaranteed non-null
-    public Suit getSuit() {
-        return this.suit;
-    }
-
-    //this.rank is guaranteed non-null
-    public Rank getRank() {
-        return this.rank;
     }
 
     //Interesting stuff happening here. This provides a canonical ordering for all cards and is the implmentation for the
