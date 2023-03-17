@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Client, over } from 'stompjs';
+import { Client, over, Subscription } from 'stompjs';
 import SockJS from 'sockjs-client';
 import { BlackjackClientGameState } from '../model/BlackjackClientGameState';
 import { BlackjackPlayerInfo } from '../model/BlackjackPlayerInfo';
@@ -11,6 +11,7 @@ import { QueueState } from '../model/QueueState';
 let stompClient: Client;
 
 function BlackJackTable() {
+    const [isJoined, setIsJoined] = useState<boolean>(false);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [playerId, setPlayerId] = useState<string>("");
     const [gameState, setGameState] = useState<BlackjackClientGameState>();
@@ -18,25 +19,14 @@ function BlackJackTable() {
 
     let { tableId } = useParams();
 
-    useEffect(() => {
-        //First, we join the game. This gives us a player token.
-        joinGame();
-        //Next, we subscribe to the two endpoints, to get game state and queue position updates.
-        //We do these at the same time because a player may automatically be moved from the queue to the game
-        //connect() is called from inside of joinGame because it must be done asynchronously.
-    }, []);
-    
-
     const connect = () => {
         let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
         stompClient = over(socket);
         // TODO: remove console.log below
-        setTimeout(() => {
-            stompClient.connect({}, () => {
-                console.log("We're connected!");
-                onConnected();
-            }, (e) => { console.log("Error: " + e) });
-        }, 100);
+        stompClient.connect({}, () => {
+            console.log("We're connected!");
+            onConnected();
+        }, (e) => { console.log("Error: " + e) });
     };
 
     const disconnect = () => {
@@ -48,19 +38,20 @@ function BlackJackTable() {
 
     const onConnected = () => {
         setIsConnected(true);
-        stompClient.subscribe('/player/' + playerId + '/queue', (payload) => { 
-            console.log(payload) 
-        });
-        //Player subscription should be controlled by their session ID
-        stompClient.subscribe('/player/' + playerId + '/game', (payload) => {
-            // if(payload instanceof BlackjackClientGameState) {
-            //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
-            // }
+        if (stompClient != null) {
+            stompClient.subscribe('/player/' + playerId + '/queue', (payload) => { 
+                console.log(payload) 
+            });
             
-            console.log(payload);
-        });
-        console.log("We are now subscribed??");
-        
+            //Player subscription should be controlled by their session ID
+            stompClient.subscribe('/player/' + playerId + '/game', (payload) => {
+                // if(payload instanceof BlackjackClientGameState) {
+                //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
+                // }
+                
+                console.log(payload);
+            });
+        }
     };
 
     const onHitAction = () => {
@@ -98,16 +89,8 @@ function BlackJackTable() {
         }, requestConfig)
         .catch( (err) => console.log(err));
     }
-    
-    // let playerList: any;
-    // if (typeof gameState != 'undefined') {
-    //     playerList = gameState.players.map(player => 
-    //         <li>
-    //             {player.playerName} has {"" + player.cards} and has{player.hasTakenTurn? "" : " not"} finished drawing cards.
-    //         </li>);
-    // }
 
-    function joinGame() {
+    const handleJoinGame = async () => {
         const requestConfig: AxiosRequestConfig = {
             baseURL: `http://${BASE_URL}:${GAME_PORT}`,
             headers: {
@@ -118,15 +101,15 @@ function BlackJackTable() {
 
         const PATH = '/joinBlackjackGame';
 
-        axios.put<string>(PATH, {
-        tableId
-        }, requestConfig)
-        .then( (res) => {
-            setPlayerId(res.data);
-            connect();
-        })
-        //.then( () => {connect()})
-        .catch( (err) => console.log(err));
+        try {
+            const response = await axios.put<string>(PATH, {
+            tableId
+            }, requestConfig);
+            setPlayerId(response.data);
+            setIsJoined(true);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     const handleStartGame = () => {
@@ -149,7 +132,10 @@ function BlackJackTable() {
     
     return (
         <div>
-            <button type='button' onClick={handleStartGame}>Start Game</button>
+            <button type='button' onClick={handleJoinGame} disabled={isJoined}>Join Game</button>
+            <button type='button' onClick={connect} disabled={isConnected || !isJoined}>Connect</button>
+            <button type='button' onClick={disconnect} disabled={!isConnected}>Disconnect</button>
+            <button type='button' onClick={handleStartGame} disabled={!isConnected}>Start Game</button>
             {/* <button type='button' onClick={onHitAction} disabled={!isConnected} >HIT</button>
             <button type='button' onClick={onStandAction} disabled={!isConnected} >STAND</button> */}
         </div>
