@@ -1,13 +1,13 @@
 package com.revature.CardLogic;
 
-import java.util.Objects;
-
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
 
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Card52 implements Comparable<Card52> {
     public enum Suit {
         SPADE, HEART, CLUB, DIAMOND
@@ -35,24 +35,6 @@ public class Card52 implements Comparable<Card52> {
             return this.suit.ordinal() - o.suit.ordinal();
         }
     }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Card52)) {
-            return false;
-        }
-        Card52 card52 = (Card52) o;
-        return Objects.equals(suit, card52.suit) && Objects.equals(rank, card52.rank);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(suit, rank);
-    }
-
 
     //Provides a clean printout of a card, like "[4D]" for the Four of Diamonds or "[KC]" for the King of Clubs
     @Override
