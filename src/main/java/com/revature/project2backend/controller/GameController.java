@@ -98,19 +98,6 @@ public class GameController {
         return ResponseEntity.status(204).body("");
     }
 
-    //Allows a player to check if they are currently the host.
-    // There is currently no way to learn who is the host at the table if it isn't you.
-    @GetMapping("amIHost")
-    public ResponseEntity<Boolean> amIHost(@RequestHeader String gameId, @RequestHeader String playerId){
-        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
-        if(game != null){
-            return ResponseEntity.status(200).body(
-                Objects.equals(game.getHostPlayer().getPlayerId(), playerId)
-            );
-        }
-        return ResponseEntity.status(404).body(false);
-    }
-
     @PutMapping("blackjackAction")
     public void doBlackjackAction(@RequestHeader String gameId, @RequestHeader String playerId, @RequestHeader String actionVerb){
         BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);

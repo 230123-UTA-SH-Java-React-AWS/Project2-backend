@@ -19,5 +19,6 @@ public @Data @AllArgsConstructor class BlackjackClientGameState implements BaseC
         String playerName;
         boolean hasTakenTurn;
         List<Card52> cards;
+        boolean isHost;
     }
 }

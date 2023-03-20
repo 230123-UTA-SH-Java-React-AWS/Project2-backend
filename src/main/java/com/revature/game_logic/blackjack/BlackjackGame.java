@@ -2,6 +2,7 @@ package com.revature.game_logic.blackjack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import com.revature.card_logic.Deck52;
@@ -44,7 +45,9 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 // retreive player info from the database.
                 "Jimothy" + rand.nextInt(),
                 p.isTurnEnded(),
-                p.getHand().getCards()));
+                p.getHand().getCards(),
+                Objects.equals(p.getPlayerId(), hostPlayer.getPlayerId()))
+            );
         }
         BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), playerInfo);
 

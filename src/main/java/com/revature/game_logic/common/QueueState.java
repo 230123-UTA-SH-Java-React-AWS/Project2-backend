@@ -6,4 +6,5 @@ import lombok.Data;
 public @Data @AllArgsConstructor class QueueState {
     private int positionInQueue;
     private int numWaitingPlayers;
+    private boolean isHost;
 }

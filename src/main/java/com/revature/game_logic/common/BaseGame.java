@@ -55,7 +55,11 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     public void updateWaitingPlayers(){
         int i = 1;
         for(T player : waitingPlayers){
-            player.sendWaitingData(i, waitingPlayers.size());
+            player.sendWaitingData(
+                i,
+                waitingPlayers.size(),
+                Objects.equals(hostPlayer.getPlayerId(), player.getPlayerId())
+            );
             i++;
         }
     }

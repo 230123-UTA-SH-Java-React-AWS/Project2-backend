@@ -25,11 +25,11 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     }
     //This should be implemented here.
     //This should send data to the user so that they can display something like "Waiting for a free seat at the table, you are #2 / 6 in the queue."
-    public final void sendWaitingData(int positionInQueue, int numWaitingPlayers){
+    public final void sendWaitingData(int positionInQueue, int numWaitingPlayers, boolean isHost){
         simpMessagingTemplate.convertAndSendToUser(
             playerId,
             "/queue",
-            new QueueState(positionInQueue, numWaitingPlayers)
+            new QueueState(positionInQueue, numWaitingPlayers, isHost)
         );
     }
 }
