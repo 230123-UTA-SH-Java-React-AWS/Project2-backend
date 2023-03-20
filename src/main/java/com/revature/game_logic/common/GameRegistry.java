@@ -10,13 +10,12 @@ import com.revature.game_logic.common.BaseGame.GameRepresentation;
 import lombok.Getter;
 
 public class GameRegistry {
-    private static GameRegistry thisGameRegistry = null;
     @Getter
     private static Map<String, BaseGame<?>> runningGames = new HashMap<>();
 
     private GameRegistry(){}
 
-    public List<GameRepresentation> getPublicGames() {
+    public static List<GameRepresentation> getPublicGames() {
         List<GameRepresentation> games = new ArrayList<>();
         for(Map.Entry<String, BaseGame<?>> g : runningGames.entrySet()){
             if(!g.getValue().isPrivateGame()){
@@ -26,17 +25,16 @@ public class GameRegistry {
         return games;
     }
 
-    public void addNewGame(BaseGame<?> newGame){
+    public static void addNewGame(BaseGame<?> newGame){
         runningGames.put(newGame.getGameId(), newGame);
     }
 
-    //I don't even know what SonarLint is mad about here.
-    public BaseGame<?> getGameByUrlSuffix(String urlSuffix){
-        return runningGames.get(urlSuffix);
+    public static void removeGame(String gameId){
+        runningGames.remove(gameId);
     }
 
-    public static GameRegistry getGameRegistry(){
-        if(thisGameRegistry == null) thisGameRegistry = new GameRegistry();
-        return thisGameRegistry;
+    //I don't even know what SonarLint is mad about here.
+    public static BaseGame<?> getGameByUrlSuffix(String urlSuffix){
+        return runningGames.get(urlSuffix);
     }
 }

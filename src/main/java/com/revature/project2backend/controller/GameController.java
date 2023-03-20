@@ -1,6 +1,7 @@
 package com.revature.project2backend.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +15,7 @@ import com.revature.game_logic.common.GameRegistry;
 import com.revature.game_logic.common.BaseGame.GameRepresentation;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +29,14 @@ public class GameController {
     
     @GetMapping("allGames")
     public List<GameRepresentation> getAllGames() {
-        return GameRegistry.getGameRegistry().getPublicGames();
+        return GameRegistry.getPublicGames();
     }
 
     @PostMapping("createBlackjackGame")
     public ResponseEntity<String> createBlackjackGame(@RequestHeader String gameName, @RequestHeader boolean lobbyIsPrivate) {
         try {
             BaseGame<BlackjackPlayer> newGame = new BlackjackGame(gameName, lobbyIsPrivate);
-            GameRegistry.getGameRegistry().addNewGame(newGame);
+            GameRegistry.addNewGame(newGame);
             return ResponseEntity.status(200).body(newGame.getGameId());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Could not open game session.");
@@ -43,7 +45,7 @@ public class GameController {
 
     @PutMapping("joinBlackjackGame")
     public ResponseEntity<String> joinBlackjackGame(@RequestHeader String gameId) {
-        BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameId);
+        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
         if(game instanceof BlackjackGame){
             blackjackGame = (BlackjackGame)game;
@@ -61,9 +63,26 @@ public class GameController {
         }
     }
 
+    @DeleteMapping("leaveBlackjackGame")
+    public void leaveBlackjackGame(@RequestHeader String gameId, @RequestHeader String playerId){
+        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
+        BlackjackGame blackjackGame;
+        if(game == null) return;
+        if(game instanceof BlackjackGame){
+            blackjackGame = (BlackjackGame)game;
+        } else {
+            return;
+        }
+        blackjackGame.dropPlayer(playerId);
+        GameRepresentation gr = blackjackGame.representation();
+        if(gr.numActivePlayers == 0 && gr.numWaitingPlayers == 0){
+            GameRegistry.removeGame(gameId);
+        }
+    }
+
     @PutMapping("startBlackjackGame")
-    public ResponseEntity<String> startBlackjackGame(@RequestHeader String gameId){
-        BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameId);
+    public ResponseEntity<String> startBlackjackGame(@RequestHeader String gameId, @RequestHeader String playerId){
+        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
         if(game == null) return ResponseEntity.status(404).body("That game does not appear to exist!");
         if(game instanceof BlackjackGame){
@@ -72,13 +91,29 @@ public class GameController {
             //Error condition - the user is using joinBlackjackGame to attempt to join a non-blackjack game
             return ResponseEntity.status(403).body("Cannot join that game!");
         }
-        blackjackGame.dealHands();
+        //Only the host of a game can start the game. To see whether or not you are the host, use the amIHost endpoint
+        if(Objects.equals(blackjackGame.getHostPlayer().getPlayerId(), playerId)) {
+            blackjackGame.dealHands();
+        }
         return ResponseEntity.status(204).body("");
+    }
+
+    //Allows a player to check if they are currently the host.
+    // There is currently no way to learn who is the host at the table if it isn't you.
+    @GetMapping("amIHost")
+    public ResponseEntity<Boolean> amIHost(@RequestHeader String gameId, @RequestHeader String playerId){
+        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
+        if(game != null){
+            return ResponseEntity.status(200).body(
+                Objects.equals(game.getHostPlayer().getPlayerId(), playerId)
+            );
+        }
+        return ResponseEntity.status(404).body(false);
     }
 
     @PutMapping("blackjackAction")
     public void doBlackjackAction(@RequestHeader String gameId, @RequestHeader String playerId, @RequestHeader String actionVerb){
-        BaseGame<?> game = GameRegistry.getGameRegistry().getGameByUrlSuffix(gameId);
+        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
         if(game instanceof BlackjackGame){
             blackjackGame = (BlackjackGame)game;

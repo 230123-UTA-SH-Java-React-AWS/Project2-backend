@@ -23,6 +23,8 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     protected boolean isPrivateGame; //Used to determine whether or not this game is shown by the listGames endpoint
     @Getter
     protected boolean isGameStarted; //Used to determine if a game is in progress (and thus if more players can be admitted)
+    @Getter @Setter
+    protected T hostPlayer = null;
 
     protected Queue<T> waitingPlayers = new ConcurrentLinkedQueue<>();
     protected List<T> activePlayers = new ArrayList<>();
@@ -46,6 +48,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     }
 
     public void addPlayer(T player){
+        if(waitingPlayers.isEmpty() && activePlayers.isEmpty()) hostPlayer = player;
         waitingPlayers.add(player);
     }
 
@@ -67,6 +70,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     //This function only removed a waiting player from the queue. Child classes are
     // expected to override this with a super call to this function and then handle removing
     // players from the active list (as this involves game-specific logic).
+    //Child classes should call chooseNewHost() after this function call.
     protected void dropPlayer(String playerId){
         T markedForDrop = null;
         for(T player : waitingPlayers){
@@ -76,6 +80,18 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         }
         if (markedForDrop != null) {
             waitingPlayers.remove();
+        }
+    }
+
+    //This will change the host player to the first available player, either the first active player
+    // or the first person in the waiting players list.
+    protected final void chooseNewHost(){
+        if(hostPlayer == null){
+            if(!activePlayers.isEmpty()){
+                hostPlayer = activePlayers.get(0);
+            } else {
+                hostPlayer = waitingPlayers.peek();
+            }
         }
     }
 
