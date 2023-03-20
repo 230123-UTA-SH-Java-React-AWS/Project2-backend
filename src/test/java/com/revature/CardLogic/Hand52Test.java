@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
-import com.revature.CardLogic.Card52.Rank;
-import com.revature.CardLogic.Card52.Suit;
+import com.revature.card_logic.Card52;
+import com.revature.card_logic.Hand52;
+import com.revature.card_logic.Card52.Rank;
+import com.revature.card_logic.Card52.Suit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Hand52Test {
     @Test

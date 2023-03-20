@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.revature.game_logic.common.BaseGame;
+
 public class BaseGameTest {
     BaseGame baseGame;
 

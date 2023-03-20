@@ -1,10 +1,10 @@
-package com.revature.GameLogic.Blackjack;
+package com.revature.game_logic.blackjack;
 
 import java.util.List;
 
-import com.revature.CardLogic.Card52;
-import com.revature.GameLogic.AllGames.BaseClientGameState;
-import com.revature.GameLogic.Blackjack.BlackjackPlayer.EndGameStates;
+import com.revature.card_logic.Card52;
+import com.revature.game_logic.blackjack.BlackjackPlayer.EndGameStates;
+import com.revature.game_logic.common.BaseClientGameState;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

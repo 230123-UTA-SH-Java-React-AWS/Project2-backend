@@ -1,10 +1,10 @@
-package com.revature.GameLogic.Blackjack;
+package com.revature.game_logic.blackjack;
 
 import java.util.Collections;
 import java.util.List;
 
-import com.revature.CardLogic.Card52;
-import com.revature.CardLogic.Hand52;
+import com.revature.card_logic.Card52;
+import com.revature.card_logic.Hand52;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

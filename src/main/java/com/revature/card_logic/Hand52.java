@@ -1,4 +1,4 @@
-package com.revature.CardLogic;
+package com.revature.card_logic;
 
 import java.util.ArrayList;
 import java.util.List;

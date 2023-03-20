@@ -1,4 +1,4 @@
-package com.revature.GameLogic.AllGames;
+package com.revature.game_logic.common;
 
 import java.security.SecureRandom;
 

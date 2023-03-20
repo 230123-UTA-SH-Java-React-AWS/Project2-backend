@@ -1,4 +1,4 @@
-package com.revature.GameLogic.AllGames;
+package com.revature.game_logic.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

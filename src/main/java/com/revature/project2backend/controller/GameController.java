@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.revature.GameLogic.AllGames.BaseGame;
-import com.revature.GameLogic.AllGames.GameRegistry;
-import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
-import com.revature.GameLogic.Blackjack.BlackjackGame;
-import com.revature.GameLogic.Blackjack.BlackjackPlayer;
+import com.revature.game_logic.blackjack.BlackjackGame;
+import com.revature.game_logic.blackjack.BlackjackPlayer;
+import com.revature.game_logic.common.BaseGame;
+import com.revature.game_logic.common.GameRegistry;
+import com.revature.game_logic.common.BaseGame.GameRepresentation;
 
 import java.util.List;
 

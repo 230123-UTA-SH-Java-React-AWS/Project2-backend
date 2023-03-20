@@ -3,6 +3,8 @@ package com.revature.GameLogic.AllGames;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.revature.game_logic.common.GameRegistry;
+
 public class GameRegistryTest {
     GameRegistry gameRegistry;
 

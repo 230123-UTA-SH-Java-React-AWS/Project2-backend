@@ -1,4 +1,4 @@
-package com.revature.GameLogic.AllGames;
+package com.revature.game_logic.common;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 

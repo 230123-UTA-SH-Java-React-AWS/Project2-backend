@@ -1,11 +1,11 @@
-package com.revature.GameLogic.AllGames;
+package com.revature.game_logic.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
+import com.revature.game_logic.common.BaseGame.GameRepresentation;
 
 import lombok.Getter;
 

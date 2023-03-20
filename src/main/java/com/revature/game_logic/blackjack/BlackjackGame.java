@@ -1,13 +1,12 @@
-package com.revature.GameLogic.Blackjack;
+package com.revature.game_logic.blackjack;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.revature.CardLogic.Deck52;
-
-import com.revature.CardLogic.MultiDeck52;
-import com.revature.GameLogic.AllGames.BaseGame;
+import com.revature.card_logic.Deck52;
+import com.revature.card_logic.MultiDeck52;
+import com.revature.game_logic.common.BaseGame;
 
 public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Random rand = new Random(); //This should be removed later when the player names are refactored.

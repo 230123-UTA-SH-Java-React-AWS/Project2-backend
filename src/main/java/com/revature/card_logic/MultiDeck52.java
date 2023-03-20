@@ -1,4 +1,4 @@
-package com.revature.CardLogic;
+package com.revature.card_logic;
 
 public class MultiDeck52 extends Deck52 {
     public MultiDeck52(int numDecksToShuffleTogether){
