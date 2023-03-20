@@ -126,8 +126,12 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     //What happens when a player leaves the game via disconnection?
-    // Ideal case: the player withdraws and loses any money the
+    // One solution: the player withdraws and loses any money they had bet that round.
+    @Override
     public void dropPlayer(String playerId){
+        //Dropping queued players first.
+        super.dropPlayer(playerId);
+        //Scanning for any active players that need to be removed
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
         if (player == null) return;
         if(activePlayers.remove(player)) {

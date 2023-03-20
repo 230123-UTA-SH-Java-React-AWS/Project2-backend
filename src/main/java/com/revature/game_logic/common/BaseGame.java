@@ -64,6 +64,21 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         return null;
     }
 
+    //This function only removed a waiting player from the queue. Child classes are
+    // expected to override this with a super call to this function and then handle removing
+    // players from the active list (as this involves game-specific logic).
+    protected void dropPlayer(String playerId){
+        T markedForDrop = null;
+        for(T player : waitingPlayers){
+            if(Objects.equals(player.playerId, playerId)){
+                markedForDrop = player;
+            }
+        }
+        if (markedForDrop != null) {
+            waitingPlayers.remove();
+        }
+    }
+
     public GameRepresentation representation(){
         return new GameRepresentation(gameType, gameId, gameName, activePlayers.size(), maxActivePlayers, waitingPlayers.size());
     }
