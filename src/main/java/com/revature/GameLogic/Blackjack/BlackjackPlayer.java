@@ -5,7 +5,6 @@ import java.util.List;
 import com.revature.CardLogic.Card52;
 
 import com.revature.GameLogic.AllGames.BasePlayer;
-import com.revature.project2backend.controller.GameController;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -30,16 +29,5 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
 
     public void push(List<Card52> cards){
         hand.push(cards);
-    }
-
-    @Override
-    public void sendWaitingData(int pos, int total){
-        //unimplemented at this time because I still need to figure out websockets.
-    }
-
-    @Override
-    public void onMessageReceived(){
-        //unimplemented at this time because I need to determine if handling messages
-        // that the player sends in Player is the right move or not.
     }
 }

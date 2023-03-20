@@ -20,19 +20,16 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     }
 
     //Send the current game state to the client.
-    //It may be possible to implement this here so that it never needs to be overridden.
-    public void sendState(){
+    public final void sendState(){
         simpMessagingTemplate.convertAndSendToUser(playerId, "/game", clientGameState);
     }
     //This should be implemented here.
     //This should send data to the user so that they can display something like "Waiting for a free seat at the table, you are #2 / 6 in the queue."
-    public void sendWaitingData(int positionInQueue, int numWaitingPlayers){
+    public final void sendWaitingData(int positionInQueue, int numWaitingPlayers){
         simpMessagingTemplate.convertAndSendToUser(
             playerId,
             "/queue",
             new QueueState(positionInQueue, numWaitingPlayers)
         );
     }
-
-    public abstract void onMessageReceived();
 }

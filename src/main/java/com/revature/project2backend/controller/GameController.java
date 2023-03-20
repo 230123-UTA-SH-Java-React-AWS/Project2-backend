@@ -10,16 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.revature.GameLogic.AllGames.BaseGame;
 import com.revature.GameLogic.AllGames.GameRegistry;
 import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
-import com.revature.GameLogic.Blackjack.BlackjackClientGameState;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @CrossOrigin(originPatterns = "*")
@@ -99,14 +96,5 @@ public class GameController {
                 break;
             default: //User is trying to take an invalid action, like "kdlfsaghiufdshgi"
         }
-    }
-
-    //FIXME: remove this
-    @GetMapping("/TEST")
-    public void sendState(@RequestHeader String playerId){
-        simpMessagingTemplate.convertAndSendToUser(
-            playerId,
-            "/game",
-            new BlackjackClientGameState(new ArrayList<>(), new ArrayList<>()));
     }
 }

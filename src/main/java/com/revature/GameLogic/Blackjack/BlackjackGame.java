@@ -21,9 +21,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void dealHands(){
-        System.out.println("Attempting to deal");
         if(isGameStarted) return;
-        System.out.println("Dealing");
         deck = new MultiDeck52(6);
         dealer = new BlackjackPlayer();
         dealer.push(deck.deal());
@@ -48,11 +46,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 "Jimothy" + rand.nextInt(),
                 p.isTurnEnded(),
                 p.getHand().getCards()));
-                System.out.print(p + "   ");
-            System.out.println(p.getHand().getHandValue());
         }
         BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), playerInfo);
-        System.out.println(gameState);
 
         for(BlackjackPlayer p : activePlayers){
             p.setClientGameState(gameState); //Update everyone's game state
@@ -142,11 +137,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void onPlayerHit(String playerId){
-        System.out.println("Player attempting to hit");
         if(!isGameStarted) return;
-        System.out.println("Player hitting");
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
-        System.out.println(player + " took the action");
         if (player == null) return;
         //Deal a card unless the player has blackjack, busted out, or has already opted to stand.
         // This can all be determined with the hasEndedTurn boolean because that is kept current with those actions.
@@ -161,11 +153,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void onPlayerStand(String playerId){
-        System.out.println("Player attempting to stand");
         if(!isGameStarted) return;
-        System.out.println("Player standing");
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
-        System.out.println(player + " took the action");
         if (player == null) return;
         //Simply notify that the player is done taking their turn.
         if(!player.isTurnEnded()){
