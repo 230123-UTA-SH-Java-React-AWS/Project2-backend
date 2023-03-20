@@ -56,10 +56,8 @@ public class Deck52 {
         if(number > deck.size()) throw new IndexOutOfBoundsException("There aren't enough cards left to deal " + number + '!');
         List<Card52> result = new ArrayList<>();
 
-        //SonarLint doesn't like the deck.remove right below this because it is inside an ascending for loop.
-        //That warning can be safely ignored for this method.
-        for(int i = 0; i < number; i++) {
-            result.add(deck.remove(deck.size() - 1));
+        for (int i = deck.size() - 1; i >= deck.size() - number; i--) {
+            result.add(deck.remove(i));
         }
 
         return result;
@@ -68,7 +66,7 @@ public class Deck52 {
     //Used to remove a specific card from the deck. Returns a boolean indicating whether the card was successfully removed.
     //This is intended to be used to pull a specific card out of the deck.
     //May be used before or after the deck is shuffled (or even if it never is).
-    public boolean remove(Card52 card){
+    public boolean take(Card52 card){
         return deck.remove(card);
     }
 

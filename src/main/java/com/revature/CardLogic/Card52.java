@@ -1,7 +1,13 @@
 package com.revature.CardLogic;
 
-import lombok.Getter;
+import java.util.Objects;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+
+
+@AllArgsConstructor
 public class Card52 implements Comparable<Card52> {
     public enum Suit {
         SPADE, HEART, CLUB, DIAMOND
@@ -11,19 +17,10 @@ public class Card52 implements Comparable<Card52> {
         TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
     }
 
-    //Both a card's suit and rank are guaranteed non-null
-    @Getter
+    @Getter @NonNull
     protected Suit suit;
-    @Getter
+    @Getter @NonNull
     protected Rank rank;
-
-    public Card52(Suit suit, Rank rank) {
-        if (suit == null || rank == null) {
-            throw new NullPointerException("Both suit and rank must be defined.");
-        }
-        this.suit = suit;
-        this.rank = rank;
-    }
 
     //Interesting stuff happening here. This provides a canonical ordering for all cards and is the implmentation for the
     // Comparable<Card52> interface method. This allows the Collections class to sort a list of cards (literally
@@ -38,6 +35,24 @@ public class Card52 implements Comparable<Card52> {
             return this.suit.ordinal() - o.suit.ordinal();
         }
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Card52)) {
+            return false;
+        }
+        Card52 card52 = (Card52) o;
+        return Objects.equals(suit, card52.suit) && Objects.equals(rank, card52.rank);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(suit, rank);
+    }
+
 
     //Provides a clean printout of a card, like "[4D]" for the Four of Diamonds or "[KC]" for the King of Clubs
     @Override
