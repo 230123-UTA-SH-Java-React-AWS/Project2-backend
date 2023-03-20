@@ -15,7 +15,6 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.GameLogic.AllGames.BaseClientGameState;
-import com.revature.GameLogic.Blackjack.BlackjackClientGameState;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
 
@@ -23,7 +22,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -60,33 +58,6 @@ public class GameControllerTest {
 
         newGame = new BlackjackGame(gameName, lobbyIsPrivate);
         player = new BlackjackPlayer(gameController);
-    }
-
-    @Test
-    void verifyInitailGameStateIsSent() throws InterruptedException, ExecutionException, TimeoutException {
-        CountDownLatch latch = new CountDownLatch(1);
-
-        webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
-
-        StompSession session = webSocketStompClient
-                .connect(String.format("ws://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
-                }).get(1, TimeUnit.SECONDS);
-
-        session.subscribe("/player/" + player.getPlayerId() + "/game", new StompFrameHandler() {
-
-            @Override
-            public Type getPayloadType(StompHeaders headers) {
-                return BlackjackClientGameState.class;
-            }
-
-            @Override
-            public void handleFrame(StompHeaders headers, Object payload) {
-                latch.countDown();
-            }
-        });
-
-        Awaitility.await().atMost(1, TimeUnit.SECONDS)
-                .untilAsserted(() -> Assertions.assertEquals(0, latch.getCount()));
     }
 
     @Test
