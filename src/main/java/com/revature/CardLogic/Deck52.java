@@ -68,8 +68,11 @@ public class Deck52 {
     //Used to remove a specific card from the deck. Returns a boolean indicating whether the card was successfully removed.
     //This is intended to be used to pull a specific card out of the deck.
     //May be used before or after the deck is shuffled (or even if it never is).
-    public boolean remove(Card52 card){
-        return deck.remove(card);
+    public boolean remove(Card52 card) throws NullPointerException{
+        if(deck.contains(card)){
+            return deck.remove(card);
+        } else
+            throw new NullPointerException("Deck does not contain specified card.");
     }
 
     @Override
