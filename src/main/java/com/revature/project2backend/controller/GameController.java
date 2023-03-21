@@ -80,6 +80,15 @@ public class GameController {
         }
     }
 
+    @GetMapping("amIHost")
+    public ResponseEntity<Boolean> getPlayerIsHost(@RequestHeader String gameId, @RequestHeader String playerId){
+        BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
+        if(game != null){
+            return ResponseEntity.status(200).body(game.isPlayerHost(playerId));
+        }
+        return ResponseEntity.status(404).body(false);
+    }
+
     @PutMapping("startBlackjackGame")
     public ResponseEntity<String> startBlackjackGame(@RequestHeader String gameId, @RequestHeader String playerId){
         BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
