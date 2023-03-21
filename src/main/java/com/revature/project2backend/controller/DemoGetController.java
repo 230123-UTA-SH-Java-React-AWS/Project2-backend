@@ -14,4 +14,6 @@ public class DemoGetController {
     public String hello(Principal principal){
         return "Hello " + principal.getName();
     }
+
+    //test commit
 }
