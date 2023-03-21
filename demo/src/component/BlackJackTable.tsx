@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Client, over, Subscription } from 'stompjs';
-import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import { BlackjackClientGameState } from '../model/BlackjackClientGameState';
 import { BlackjackPlayerInfo } from '../model/BlackjackPlayerInfo';
 import { useParams } from 'react-router-dom';
@@ -21,72 +20,45 @@ function BlackJackTable() {
 
     useEffect(() => {(async () => {
         await handleJoinGame();
-        let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
-        stompClient = over(socket);
+        stompClient = new Client({
+            brokerURL: `ws://${BASE_URL}:${GAME_PORT}/ws`,
+            onConnect: () => {
+                if (stompClient.connected) {
+                    stompClient.subscribe('/user/' + playerId + '/queue', (payload) => { 
+                        console.log(payload) 
+                    });
+                    
+                    //Player subscription should be controlled by their session ID
+                    stompClient.subscribe('/user/' + playerId + '/game', (payload) => {
+                        // if(payload instanceof BlackjackClientGameState) {
+                        //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
+                        // }
+                        
+                        console.log(payload);
+                    });
+                } else {
+                    //TODO handle connection failure
+                }
+            },
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000
+        });
+        await stompClient.activate();
+        // let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
+        // stompClient = over(socket);
         // TODO: remove console.log below
-        await stompClient.connect({}, () => {
         setIsConnected(true);
-        if (stompClient.connected) {
-            stompClient.subscribe('/player/' + playerId + '/queue', (payload) => { 
-                console.log(payload) 
-            });
-            
-            //Player subscription should be controlled by their session ID
-            stompClient.subscribe('/player/' + playerId + '/game', (payload) => {
-                // if(payload instanceof BlackjackClientGameState) {
-                //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
-                // }
-                
-                console.log(payload);
-            });
-        } else {
-            //TODO handle connection failure
-        }
-        }, (e) => { console.log("Error: " + e) })})();
+    })();
         
         return () => {
             setIsConnected(false);
             if(stompClient != null) {
                 console.log(stompClient);
-                stompClient.disconnect(() => console.log("Disconnected"));
+                stompClient.onDisconnect = (() => console.log("Disconnected"));
             }
+            stompClient.deactivate();
         };
     }, []);
-
-    const connect = () => {
-        let socket = new SockJS(`http://${BASE_URL}:${GAME_PORT}/ws`);
-        stompClient = over(socket);
-        // TODO: remove console.log below
-        stompClient.connect({}, () => {
-            console.log("We're connected!");
-            onConnected();
-        }, (e) => { console.log("Error: " + e) });
-    };
-
-    const disconnect = () => {
-        setIsConnected(false);
-        if (stompClient != null) {
-            stompClient.disconnect(() => console.log("Disconnected"));
-        }
-    }
-
-    const onConnected = () => {
-        setIsConnected(true);
-        if (stompClient != null) {
-            stompClient.subscribe('/player/' + playerId + '/queue', (payload) => { 
-                console.log(payload) 
-            });
-            
-            //Player subscription should be controlled by their session ID
-            stompClient.subscribe('/player/' + playerId + '/game', (payload) => {
-                // if(payload instanceof BlackjackClientGameState) {
-                //     setGameState(new BlackjackClientGameState(payload.dealersCards, payload.players));
-                // }
-                
-                console.log(payload);
-            });
-        }
-    };
 
     const onHitAction = () => {
         const requestConfig: AxiosRequestConfig = {
@@ -167,8 +139,8 @@ function BlackJackTable() {
     return (
         <div>
             <button type='button' onClick={handleJoinGame} disabled={isJoined}>Join Game</button>
-            <button type='button' onClick={connect} disabled={isConnected || !isJoined}>Connect</button>
-            <button type='button' onClick={disconnect} disabled={!isConnected}>Disconnect</button>
+            <button type='button' disabled={isConnected || !isJoined}>Connect</button>
+            <button type='button' disabled={!isConnected}>Disconnect</button>
             <button type='button' onClick={handleStartGame} disabled={!isConnected}>Start Game</button>
             {/* <button type='button' onClick={onHitAction} disabled={!isConnected} >HIT</button>
             <button type='button' onClick={onStandAction} disabled={!isConnected} >STAND</button> */}
