@@ -1,44 +1,46 @@
-package com.revature.CardLogic;
+package com.revature.card_logic;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+
+
+@AllArgsConstructor
+@EqualsAndHashCode
 public class Card52 implements Comparable<Card52> {
-    public enum Suit {SPADE, HEART, CLUB, DIAMOND}
-    public enum Rank {TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE}
-
-    private Suit suit;
-    private Rank rank;
-
-    public Card52(Suit suit, Rank rank){
-        if (suit == null || rank == null) {
-            throw new NullPointerException("Both suit and rank must be defined.");
-        }
-        this.suit = suit;
-        this.rank = rank;
+    public enum Suit {
+        SPADE, HEART, CLUB, DIAMOND
     }
 
-
-    public Suit getSuit() {
-        return this.suit;
+    public enum Rank {
+        TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
     }
 
-    public Rank getRank() {
-        return this.rank;
-    }
+    @Getter @NonNull
+    protected Suit suit;
+    @Getter @NonNull
+    protected Rank rank;
 
-
+    //Interesting stuff happening here. This provides a canonical ordering for all cards and is the implmentation for the
+    // Comparable<Card52> interface method. This allows the Collections class to sort a list of cards (literally
+    // Collections.sort(List<Card52>).) The order provided is as follows:
+    // Ace of Spades, Ace of Hearts, Ace of Clubs, Ace of Diamonds, King of Spades, and so on to the Two of Diamonds.
     @Override
     public int compareTo(Card52 o) {
         int rankDiff = o.rank.ordinal() - this.rank.ordinal();
-        if(rankDiff != 0) {
+        if (rankDiff != 0) {
             return rankDiff;
         } else {
             return this.suit.ordinal() - o.suit.ordinal();
         }
     }
 
+    //Provides a clean printout of a card, like "[4D]" for the Four of Diamonds or "[KC]" for the King of Clubs
     @Override
     public String toString() {
         String out = "[";
-        
+
         switch (rank) {
             case ACE:
                 out += 'A';
@@ -80,8 +82,8 @@ public class Card52 implements Comparable<Card52> {
                 out += '2';
                 break;
         }
-        
-        switch(suit){
+
+        switch (suit) {
             case SPADE:
                 out += 'S';
                 break;
@@ -99,5 +101,5 @@ public class Card52 implements Comparable<Card52> {
         out += ']';
         return out;
     }
-    
+
 }
