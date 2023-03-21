@@ -38,45 +38,33 @@ class AuthControllerTest {
     @MockBean
     private UserServiceImpl userService;
 
-    private String obtainCsrfToken() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/csrf")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andReturn();
-
-        String response = result.getResponse().getContentAsString();
-        JSONObject jsonObject = new JSONObject(response);
-        return jsonObject.getString("token");
-    }
 
     @Test
     void login_validCredentials() throws Exception {
-        String csrfToken = obtainCsrfToken();
+
         LoginDto loginDto = new LoginDto("test@email.com", "password");
         AuthResponseDto authResponseDto = new AuthResponseDto("testuser", "test@email.com", "jwt-token");
         when(userService.login(loginDto)).thenReturn(ResponseEntity.ok(authResponseDto));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-XSRF-TOKEN", csrfToken)
                         .content(objectMapper.writeValueAsString(loginDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt-token"));
+                .andExpect(jsonPath("$.accessToken").value("jwt-token"))
+                .andExpect(jsonPath("$.email").value("test@email.com"))
+                .andExpect(jsonPath("$.username").value("testuser"));
 
         verify(userService).login(loginDto);
     }
 
     @Test
     void login_invalidCredentials() throws Exception {
-        String csrfToken = obtainCsrfToken();
         LoginDto loginDto = new LoginDto("invalid@email.com", "wrong_password");
 
         when(userService.login(loginDto)).thenReturn(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-XSRF-TOKEN", csrfToken)
                         .content(objectMapper.writeValueAsString(loginDto)))
                 .andExpect(status().isUnauthorized());
 

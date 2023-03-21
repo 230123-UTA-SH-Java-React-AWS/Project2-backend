@@ -20,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,8 +32,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class) @SpringBootTest
 class JwtGeneratorTest {
 
     @Mock
@@ -40,9 +43,8 @@ class JwtGeneratorTest {
     UserRepository userRepository;
     @Mock
     PasswordEncoder passwordEncoder;
-    @Mock
+    @Autowired
     JwtGenerator jwtGenerator;
-    @InjectMocks
     UserServiceImpl userService;
 
     LoginDto loginDto;
@@ -64,28 +66,28 @@ class JwtGeneratorTest {
 
         userDetails = new User(userEntity.getEmail(), userEntity.getPassword(), new ArrayList<>());
         authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        userService = new UserServiceImpl(authenticationManager,userRepository,passwordEncoder,jwtGenerator);
     }
 
     @Test
     void login_jwtContainsCorrectInfo() {
+        JwtGenerator realJwtGenerator = new JwtGenerator();
+
         when(userRepository.existsByEmail(loginDto.getEmail())).thenReturn(true);
         when(userRepository.findByEmail(loginDto.getEmail())).thenReturn(Optional.of(userEntity));
         when(passwordEncoder.matches(loginDto.getPassword(), userEntity.getPassword())).thenReturn(true);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authentication);
 
-
-
         ResponseEntity<AuthResponseDto> response = userService.login(loginDto);
 
-        String jwtToken = jwtGenerator.generateJwtToken(authentication);
+        String jwtToken = realJwtGenerator.generateJwtToken(authentication);
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("bogus", response.getBody().getUsername());
         assertEquals("bogus@email.com", response.getBody().getEmail());
         assertEquals(jwtToken, response.getBody().getAccessToken());
-
     }
 
     @Test
@@ -120,7 +122,7 @@ class JwtGeneratorTest {
         JwtGenerator realJwtGenerator = new JwtGenerator();
 
         String jwtToken = realJwtGenerator.generateJwtToken(authentication);
-        String tamperedToken = jwtToken.replaceFirst("a", "b"); // Change one character in the token to simulate tampering
+        String tamperedToken = jwtToken + "a"; // Append an extra character to the token to make it invalid
         assertThrows(AuthenticationCredentialsNotFoundException.class, () -> jwtGenerator.validateToken(tamperedToken), "Invalid token should throw an exception");
     }
 }
