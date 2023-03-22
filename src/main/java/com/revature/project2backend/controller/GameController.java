@@ -94,8 +94,9 @@ public class GameController {
         //Only the host of a game can start the game. To see whether or not you are the host, use the amIHost endpoint
         if(Objects.equals(blackjackGame.getHostPlayer().getPlayerId(), playerId)) {
             blackjackGame.dealHands();
+            return ResponseEntity.status(204).body("");
         }
-        return ResponseEntity.status(204).body("");
+        return ResponseEntity.status(403).body("You are not the host.");
     }
 
     @PutMapping("blackjackAction")
