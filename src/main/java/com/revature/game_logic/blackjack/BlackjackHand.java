@@ -40,7 +40,7 @@ public @NoArgsConstructor class BlackjackHand extends Hand52 {
     public int calculateHandValue() {
         isSoftHand = false;
         handValue = 0;
-        Collections.sort(cards); //Places any aces in hand at the front of the hand to ensure that they are checked last.
+        int aceCount = 0;
         for(int i = cards.size() - 1; i >= 0; i--){
             Card52 c = cards.get(i);
             //This switch statement is here instead of being in its own BlackjackCard class bfor a specific reason.
@@ -50,14 +50,7 @@ public @NoArgsConstructor class BlackjackHand extends Hand52 {
             //This way of doing it also ensures compatibility between Deck52, Card52, and any extension of the Hand52 class.
             switch (c.getRank()) {
                 case ACE:
-                    if (handValue > 10) {
-                        handValue += 1;
-                    } else {
-                        handValue += 11;
-                        isSoftHand = true;
-                        //A "soft" hand is one where an ace is present and is being counted as an 11.
-                        //A soft hand can never bust by taking one additional card.
-                    }
+                    aceCount++;
                     break;
                 case KING:
                 case QUEEN:
@@ -93,6 +86,17 @@ public @NoArgsConstructor class BlackjackHand extends Hand52 {
                 // by the Card52 class.
             }
         }
+        for (int i = 0; i < aceCount; i++) {
+            if (handValue > 10) {
+            handValue += 1;
+            } else {
+                handValue += 11;
+                isSoftHand = true;
+                //A "soft" hand is one where an ace is present and is being counted as an 11.
+                //A soft hand can never bust by taking one additional card.
+            }
+        }
+        
         
         if(handValue > 21) isBustedOut = true;
         return handValue;
