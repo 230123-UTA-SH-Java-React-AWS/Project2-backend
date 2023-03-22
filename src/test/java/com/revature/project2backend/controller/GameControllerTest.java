@@ -1,5 +1,6 @@
 package com.revature.project2backend.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -14,10 +15,11 @@ import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.revature.GameLogic.AllGames.BaseClientGameState;
+import com.revature.GameLogic.Blackjack.BlackjackClientGameState;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -29,8 +31,6 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.awaitility.Awaitility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GameControllerTest {
@@ -39,9 +39,10 @@ public class GameControllerTest {
     @LocalServerPort
     private Integer port;
 
-    GameController gameController = Mockito.mock(GameController.class);
+    @Autowired
+    private GameController gameController;
 
-    private JacksonTester<BaseClientGameState> jsonGameState;
+    private JacksonTester<BlackjackClientGameState> jsonGameState;
 
     BlackjackGame newGame;
     BlackjackPlayer player;
@@ -57,104 +58,110 @@ public class GameControllerTest {
         boolean lobbyIsPrivate = false;
 
         newGame = new BlackjackGame(gameName, lobbyIsPrivate);
-        player = new BlackjackPlayer(gameController);
+        player = new BlackjackPlayer(gameController.getSimpMessagingTemplate());
+    }
+
+    @Test
+    void contextsLoad() {
+        Assertions.assertNotNull(gameController.getSimpMessagingTemplate());
     }
 
     @Test
     void verifyGameStateIsReceivedOnStartBlackjackGame()
-            throws InterruptedException, ExecutionException, TimeoutException {
+            throws InterruptedException, ExecutionException, TimeoutException, IOException {
 
-        BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(1);
+        BlockingQueue<BlackjackClientGameState> blockingQueue = new ArrayBlockingQueue<>(1);
 
         webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         StompSession session = webSocketStompClient
-                .connect(String.format("ws://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
+                .connect(String.format("http://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
                 }).get(1, TimeUnit.SECONDS);
 
-        session.subscribe("/user/" + player.getPlayerId() + "/game", new StompFrameHandler() {
+        session.subscribe("/player/" + player.getPlayerId() + "/game", new StompFrameHandler() {
 
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return BlackjackClientGameState.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                blockingQueue.add((String) payload);
+                blockingQueue.add((BlackjackClientGameState) payload);
             }
         });
 
+        newGame.addPlayer(player);
         newGame.dealHands();
 
-        Awaitility.await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> Assertions
-                .assertEquals(jsonGameState.write(player.getClientGameState()).getJson().replace("\\s", ""),
-                        blockingQueue.poll().replace("\\s", "")));
+        Assertions.assertNotNull(player.getClientGameState());
+        Assertions.assertEquals(jsonGameState.write(player.getClientGameState()).getJson(),
+                jsonGameState.write(blockingQueue.poll(1, TimeUnit.SECONDS)).getJson());
     }
 
     @Test
     void verifyGameStateIsReceivedOnBlackjackGameHitAction()
-            throws InterruptedException, ExecutionException, TimeoutException {
+            throws InterruptedException, ExecutionException, TimeoutException, IOException {
 
-        BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(1);
+        BlockingQueue<BlackjackClientGameState> blockingQueue = new ArrayBlockingQueue<>(1);
 
         webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         StompSession session = webSocketStompClient
-                .connect(String.format("ws://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
+                .connect(String.format("http://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
                 }).get(1, TimeUnit.SECONDS);
 
-        session.subscribe("/user/" + player.getPlayerId() + "/game", new StompFrameHandler() {
+        session.subscribe("/player/" + player.getPlayerId() + "/game", new StompFrameHandler() {
 
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return BlackjackClientGameState.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                blockingQueue.add((String) payload);
+                blockingQueue.add((BlackjackClientGameState) payload);
             }
         });
 
+        newGame.addPlayer(player);
         newGame.dealHands();
         newGame.onPlayerHit(player.getPlayerId());
 
-        Awaitility.await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> Assertions
-                .assertEquals(jsonGameState.write(player.getClientGameState()).getJson().replace("\\s", ""),
-                        blockingQueue.poll().replace("\\s", "")));
+        Assertions.assertEquals(jsonGameState.write(player.getClientGameState()).getJson(),
+                jsonGameState.write(blockingQueue.poll()).getJson());
     }
 
     @Test
     void verifyGameStateIsReceivedOnBlackjackGameStandAction()
-            throws InterruptedException, ExecutionException, TimeoutException {
+            throws InterruptedException, ExecutionException, TimeoutException, IOException {
 
-        BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(1);
+        BlockingQueue<BlackjackClientGameState> blockingQueue = new ArrayBlockingQueue<>(1);
 
         webSocketStompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         StompSession session = webSocketStompClient
-                .connect(String.format("ws://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
+                .connect(String.format("http://localhost:%d/ws", port), new StompSessionHandlerAdapter() {
                 }).get(1, TimeUnit.SECONDS);
 
-        session.subscribe("/user/" + player.getPlayerId() + "/game", new StompFrameHandler() {
+        session.subscribe("/player/" + player.getPlayerId() + "/game", new StompFrameHandler() {
 
             @Override
             public Type getPayloadType(StompHeaders headers) {
-                return String.class;
+                return BlackjackClientGameState.class;
             }
 
             @Override
             public void handleFrame(StompHeaders headers, Object payload) {
-                blockingQueue.add((String) payload);
+                blockingQueue.add((BlackjackClientGameState) payload);
             }
         });
 
+        newGame.addPlayer(player);
         newGame.dealHands();
         newGame.onPlayerStand(player.getPlayerId());
 
-        Awaitility.await().atMost(1, TimeUnit.SECONDS).untilAsserted(() -> Assertions
-                .assertEquals(jsonGameState.write(player.getClientGameState()).getJson().replace("\\s", ""),
-                        blockingQueue.poll().replace("\\s", "")));
+        Assertions.assertEquals(jsonGameState.write(player.getClientGameState()).getJson(),
+                jsonGameState.write(blockingQueue.poll()).getJson());
     }
 }

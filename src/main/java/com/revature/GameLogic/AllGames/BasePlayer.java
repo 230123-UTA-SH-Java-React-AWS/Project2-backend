@@ -1,6 +1,6 @@
 package com.revature.GameLogic.AllGames;
 
-import com.revature.project2backend.controller.GameController;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,10 +13,11 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     @Getter
     @Setter
     protected T clientGameState; // The game state that this client has.
-    protected GameController gameController; // A reference to the GameController so we can update the socket
+    protected SimpMessagingTemplate simpMessagingTemplate; // A reference to the GameController so we can update the
+                                                           // socket
 
-    protected BasePlayer(GameController gameController) {
-        this.gameController = gameController;
+    protected BasePlayer(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     // Send the current game state to the client.
@@ -28,7 +29,10 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     // This should send data to the user so that they can display something like
     // "Waiting for a free seat at the table, you are #2 / 6 in the queue."
     public void sendWaitingData(int positionInQueue, int numWaitingPlayers) {
-        gameController.sendQueueState(playerId, positionInQueue, numWaitingPlayers);
+        simpMessagingTemplate.convertAndSendToUser(
+                playerId,
+                "/queue",
+                new QueueState(positionInQueue, numWaitingPlayers));
     }
 
     public abstract void onMessageReceived();

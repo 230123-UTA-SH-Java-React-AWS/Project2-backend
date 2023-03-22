@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.revature.GameLogic.AllGames.BaseClientGameState;
 import com.revature.GameLogic.AllGames.BaseGame;
 import com.revature.GameLogic.AllGames.GameRegistry;
-import com.revature.GameLogic.AllGames.QueueState;
 import com.revature.GameLogic.AllGames.BaseGame.GameRepresentation;
 import com.revature.GameLogic.Blackjack.BlackjackGame;
 import com.revature.GameLogic.Blackjack.BlackjackPlayer;
+
+import lombok.Getter;
 
 import java.util.List;
 
@@ -26,7 +26,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 @RestController
 public class GameController {
     @Autowired
-    private static SimpMessagingTemplate simpMessagingTemplate;
+    @Getter
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @GetMapping("allGames")
     public List<GameRepresentation> getAllGames() {
@@ -57,7 +58,7 @@ public class GameController {
             return ResponseEntity.status(403).body("");
         }
         try {
-            BlackjackPlayer p = new BlackjackPlayer(this);
+            BlackjackPlayer p = new BlackjackPlayer(simpMessagingTemplate);
             blackjackGame.addPlayer(p);
             return ResponseEntity.status(200).body(p.getPlayerId());
         } catch (Exception e) {
@@ -107,14 +108,5 @@ public class GameController {
     // /player/<player-id>
     // player-id is generated when a player is created (i.e. when they connect to a
     // game) and passed to the frontend.
-    public static void sendGameState(BaseClientGameState gameState, String playerId) {
-        simpMessagingTemplate.convertAndSendToUser(playerId, "/game", gameState);
-    }
 
-    public static void sendQueueState(String playerId, int positionInQueue, int numWaitingPlayers) {
-        simpMessagingTemplate.convertAndSendToUser(
-                playerId,
-                "/queue",
-                new QueueState(positionInQueue, numWaitingPlayers));
-    }
 }
