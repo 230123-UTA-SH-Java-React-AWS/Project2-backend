@@ -1,6 +1,5 @@
 package com.revature.game_logic.blackjack;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.revature.card_logic.Card52;
@@ -43,7 +42,7 @@ public @NoArgsConstructor class BlackjackHand extends Hand52 {
         int aceCount = 0;
         for(int i = cards.size() - 1; i >= 0; i--){
             Card52 c = cards.get(i);
-            //This switch statement is here instead of being in its own BlackjackCard class bfor a specific reason.
+            //This switch statement is here instead of being in its own BlackjackCard class for a specific reason.
             //I did not extend the Card52 class because that is not analogous to actual card behavior. The game determines
             // the way that cards act, not the other way around. For instance, a King in blackjack is worth the same value
             // as a queen, but in poker it would be higher. However, it is still the same King card.
