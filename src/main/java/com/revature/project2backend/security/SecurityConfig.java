@@ -77,10 +77,11 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration=  new CorsConfiguration();
         //TODO: change allowed origin to hosted url later
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080", "http://localhost:4798"));
         //TODO: update list if needed
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT, "X-XSRF-TOKEN"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        //configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT, "X-XSRF-TOKEN"));
+        configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         //cors on every endpoint, change if needed
@@ -92,7 +93,7 @@ public class SecurityConfig {
     public CsrfTokenRepository csrfTokenRepository() {
         // csrf token can only be accessed using http requests and not javascript
         CookieCsrfTokenRepository repository = new CookieCsrfTokenRepository();
-        repository.setCookieHttpOnly(true);
+        repository.setCookieHttpOnly(false);
         return repository;
     }
 }
