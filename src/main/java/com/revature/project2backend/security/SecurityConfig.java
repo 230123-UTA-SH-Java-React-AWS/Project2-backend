@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(authEntryPoint).accessDeniedHandler(csrfAccessDeniedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/csrf").permitAll().and()
+                .authorizeRequests().antMatchers("/ws").permitAll().and()
                 .authorizeRequests().antMatchers("/api/hello").authenticated().and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
         // jwt filter will validate tokens on each request
