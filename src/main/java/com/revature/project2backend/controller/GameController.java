@@ -44,7 +44,7 @@ public class GameController {
     }
 
     @PutMapping("joinBlackjackGame")
-    public ResponseEntity<String> joinBlackjackGame(@RequestHeader String gameId) {
+    public ResponseEntity<String> joinBlackjackGame(@RequestHeader String gameId, @RequestHeader String username) {
         BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
         if(game instanceof BlackjackGame){
@@ -54,7 +54,7 @@ public class GameController {
             return ResponseEntity.status(403).body("");
         }
         try{
-            BlackjackPlayer p = new BlackjackPlayer();
+            BlackjackPlayer p = new BlackjackPlayer(username);
             p.setSimpMessagingTemplate(simpMessagingTemplate);
             blackjackGame.addPlayer(p);
             return ResponseEntity.status(200).body(p.getPlayerId());
@@ -94,8 +94,9 @@ public class GameController {
         //Only the host of a game can start the game. To see whether or not you are the host, use the amIHost endpoint
         if(Objects.equals(blackjackGame.getHostPlayer().getPlayerId(), playerId)) {
             blackjackGame.dealHands();
+            return ResponseEntity.status(204).body("");
         }
-        return ResponseEntity.status(204).body("");
+        return ResponseEntity.status(403).body("You are not the host.");
     }
 
     @PutMapping("blackjackAction")
