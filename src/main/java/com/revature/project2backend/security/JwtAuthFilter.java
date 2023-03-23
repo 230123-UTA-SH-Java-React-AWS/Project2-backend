@@ -47,3 +47,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return null;
     }
 }
+
+/*
+* JwtAuthFilter Class Documentation
+This class extends the OncePerRequestFilter to implement a custom JWT authentication filter for the application. It checks for the presence of a JWT token in the "Authorization" header, validates the token, extracts the email address, loads the user details associated with the email, and sets the authentication information in the security context.
+
+Dependencies
+JwtGenerator: A utility class for generating, parsing, and validating JWT tokens.
+CustomUserDetailsService: A custom user details service for loading user-specific data.
+Methods
+doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+This method is invoked once per request and overrides the doFilterInternal method of OncePerRequestFilter. It checks for the presence of a JWT token in the "Authorization" header, validates the token, extracts the email address within, loads the user details associated with the email, and then sets the authentication information in the security context.
+
+getJwtFromRequest(HttpServletRequest request)
+This private method takes an HttpServletRequest object as a parameter and extracts the JWT token from the "Authorization" header. If the header contains a valid JWT token with the "Bearer" prefix, the method returns the token. If the header does not contain a valid token, the method returns null.
+
+Annotations
+@Autowired: Indicates that the annotated class member should be auto-wired by Spring's dependency injection.
+Extends
+OncePerRequestFilter: A base class for filters that should be executed once per request.
+* */

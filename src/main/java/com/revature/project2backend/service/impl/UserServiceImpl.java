@@ -102,3 +102,36 @@ public class UserServiceImpl implements UserService {
 
     }
 }
+
+/**
+ * UserServiceImpl Class Documentation
+ * This class is an implementation of the UserService interface and contains methods for user management, including registration, login, and retrieving user details. It uses Spring Security for authentication and JWT for token generation.
+ *
+ * Class Dependencies
+ * AuthenticationManager: For managing user authentication.
+ * UserRepository: For accessing the User database.
+ * PasswordEncoder: For encoding and decoding user passwords.
+ * JwtGenerator: For generating JWT tokens.
+ * Constructor
+ * The constructor takes the following parameters:
+ *
+ * AuthenticationManager authenticationManager
+ * UserRepository userRepository
+ * PasswordEncoder passwordEncoder
+ * JwtGenerator jwtGenerator
+ * These parameters are used to initialize the respective class properties.
+ *
+ * Methods
+ * getCurrentUser()
+ * This method returns the current authenticated user's details wrapped in an Optional<UserDto> object. If no user is authenticated, it returns an empty Optional.
+ *
+ * TODO: clean up response to include user details like username, wins, and profile photo.
+ *
+ * login(@RequestBody LoginDto loginDto)
+ * This method takes a LoginDto object containing the user's email and password. It checks if the provided email exists in the repository, then validates the user's password. If the credentials are valid, it returns an AuthResponseDto object containing the user's username, email, and JWT token wrapped in a ResponseEntity with an HTTP status code of HttpStatus.OK. If either the email or password is invalid, a LoginNotValidException is thrown.
+ *
+ * TODO: include user details like username, wins, and profile photo.
+ *
+ * register(@RequestBody RegisterDto registerDto)
+ * This method takes a RegisterDto object containing the user's desired username, email, and password. It checks if the provided email and username already exist in the repository. If either is already in use, a RegisterNotValidException is thrown. Otherwise, a new UserEntity is created, its password is hashed, and the user is saved in the database. Finally, it returns a ResponseEntity<String> containing a success message and an HTTP status code of HttpStatus.OK.
+ * */

@@ -38,3 +38,25 @@ public class CustomUserDetailsService implements UserDetailsService {
         return authorities;
     }
 }
+
+/*
+* CustomUserDetailsService Class Documentation
+This class serves as a custom implementation of the UserDetailsService interface, providing a way to load user-specific data from the database. It is responsible for retrieving user data by email address and transforming it into a UserDetails object for Spring Security to use.
+
+Dependencies
+UserRepository: A Spring Data JPA repository used to query the UserEntity data from the database.
+Methods
+CustomUserDetailsService(UserRepository userRepository)
+This is the constructor for the CustomUserDetailsService class. It takes a UserRepository object as an argument and assigns it to the userRepository field.
+
+loadUserByUsername(String email)
+This method retrieves a user from the database by email address and transforms it into a UserDetails object. If the email address is not found, it throws a UsernameNotFoundException.
+
+getAuthorities()
+This method returns a collection of GrantedAuthority objects representing the authorities granted to the user. In this implementation, every user is granted the "USER" role.
+
+Annotations
+@Service: Indicates that the class should be treated as a Spring service and managed by the Spring container.
+Implements
+UserDetailsService: An interface for retrieving user-related data and providing it to Spring Security as a UserDetails object.
+* */
