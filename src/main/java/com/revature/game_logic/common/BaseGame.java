@@ -48,7 +48,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
     }
 
     public void addPlayer(T player){
-        if(waitingPlayers.isEmpty() && activePlayers.isEmpty()) hostPlayer = player;
+        if(waitingPlayers.isEmpty() && activePlayers.isEmpty()) setHostPlayer(player);
         waitingPlayers.add(player);
     }
 

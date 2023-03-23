@@ -13,7 +13,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Random rand = new Random(); //This should be removed later when the player names are refactored.
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
-    BlackjackPlayer dealer = new BlackjackPlayer();
+    BlackjackPlayer dealer = new BlackjackPlayer("Dealer");
     
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 6);
@@ -23,13 +23,14 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     public void dealHands(){
         if(isGameStarted) return;
         deck = new MultiDeck52(6);
-        dealer = new BlackjackPlayer();
+        dealer = new BlackjackPlayer("Dealer");
         dealer.push(deck.deal());
         admitPlayers();
         for(BlackjackPlayer p : activePlayers){
             p.getHand().getCards().clear();
             p.setTurnEnded(false);
             p.push(deck.deal(2));
+            p.setEndGameState(BlackjackPlayer.EndGameStates.STILL_PLAYING);
         }
         onGameStateChange();
     }
@@ -43,13 +44,14 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 p.getEndGameState(),
                 //TODO: Instead of a "player name", this should be changed to a unique identifier that allows the frontend to
                 // retreive player info from the database.
-                "Jimothy" + rand.nextInt(),
+                p.getPlayerName(),
                 p.isTurnEnded(),
                 p.getHand().getCards(),
+                p.getHand().getHandValue(),
                 Objects.equals(p.getPlayerId(), hostPlayer.getPlayerId()))
             );
         }
-        BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), playerInfo);
+        BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), dealer.getHand().getHandValue(), playerInfo);
 
         for(BlackjackPlayer p : activePlayers){
             p.setClientGameState(gameState); //Update everyone's game state

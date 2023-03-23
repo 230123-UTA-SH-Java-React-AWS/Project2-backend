@@ -56,8 +56,8 @@ public class Deck52 {
         if(number > deck.size()) throw new IndexOutOfBoundsException("There aren't enough cards left to deal " + number + '!');
         List<Card52> result = new ArrayList<>();
 
-        for (int i = deck.size() - 1; i >= deck.size() - number; i--) {
-            result.add(deck.remove(i));
+        for(int i = 0; i < number; i++){
+            result.add(deck.remove(deck.size() - 1));
         }
 
         return result;

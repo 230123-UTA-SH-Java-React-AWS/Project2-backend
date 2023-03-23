@@ -16,7 +16,11 @@ public abstract class BasePlayer<T extends BaseClientGameState> {
     @Setter
     protected T clientGameState; //The game state that this client has.
 
-    protected BasePlayer() {
+    @Getter
+    protected String playerName;
+
+    protected BasePlayer(String playerName) {
+        this.playerName = playerName;
     }
 
     //Send the current game state to the client.

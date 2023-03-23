@@ -18,8 +18,8 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     @Getter @Setter @NonNull
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
 
-    public BlackjackPlayer(){
-        super();
+    public BlackjackPlayer(String playerName){
+        super(playerName);
     }
 
     public void push(Card52 card){

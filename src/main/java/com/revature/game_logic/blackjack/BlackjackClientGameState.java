@@ -12,6 +12,7 @@ import lombok.Data;
 
 public @Data @AllArgsConstructor class BlackjackClientGameState implements BaseClientGameState {
     private List<Card52> dealersCards;
+    private int dealerHandValue;
     private List<BlackjackPlayerInfo> players;
 
     public static @Data @AllArgsConstructor class BlackjackPlayerInfo {
@@ -19,6 +20,7 @@ public @Data @AllArgsConstructor class BlackjackClientGameState implements BaseC
         String playerName;
         boolean hasTakenTurn;
         List<Card52> cards;
+        int handValue;
         boolean isHost;
     }
 }
