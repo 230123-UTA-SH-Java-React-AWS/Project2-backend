@@ -71,6 +71,11 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         return null;
     }
 
+    public boolean isPlayerHost(String playerId){
+        if(hostPlayer == null) return false;
+        return Objects.equals(playerId, hostPlayer.getPlayerId());
+    }
+
     //This function only removed a waiting player from the queue. Child classes are
     // expected to override this with a super call to this function and then handle removing
     // players from the active list (as this involves game-specific logic).
