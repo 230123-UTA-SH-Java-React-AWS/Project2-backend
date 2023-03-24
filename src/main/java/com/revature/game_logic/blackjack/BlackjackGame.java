@@ -31,6 +31,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             p.setTurnEnded(false);
             p.push(deck.deal(2));
             p.setEndGameState(BlackjackPlayer.EndGameStates.STILL_PLAYING);
+            p.setDoubledDown(false);
         }
         onGameStateChange();
     }
@@ -48,7 +49,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 p.isTurnEnded(),
                 p.getHand().getCards(),
                 p.getHand().getHandValue(),
-                Objects.equals(p.getPlayerId(), hostPlayer.getPlayerId()))
+                Objects.equals(p.getPlayerId(), hostPlayer.getPlayerId()),
+                p.isDoubledDown())
             );
         }
         BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), dealer.getHand().getHandValue(), playerInfo);
@@ -134,17 +136,22 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     // One solution: the player withdraws and loses any money they had bet that round.
     @Override
     public void dropPlayer(String playerId){
+        if(Objects.equals(hostPlayer.getPlayerId(), playerId)) hostPlayer = null;
         //Dropping queued players first.
         super.dropPlayer(playerId);
         //Scanning for any active players that need to be removed
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
         if (player == null) return;
         if(activePlayers.remove(player)) {
+            chooseNewHost();
             onPlayerEndsTurn(); //A player leaving counts as ending their turn.
         }
         chooseNewHost();
     }
 
+    //A player choosing to Hit means they are taking an additional card.
+    //If they have Blackjack (their hand value = 21) or have busted out (hand value > 21), they
+    // are prevented from taking any more cards.
     public void onPlayerHit(String playerId){
         if(!isGameStarted) return;
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
@@ -161,6 +168,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         }
     }
 
+    //A player choosing to Stand means they are no longer taking cards.
+    // From the perspective of the game state, this simply ends their turn.
     public void onPlayerStand(String playerId){
         if(!isGameStarted) return;
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
@@ -170,6 +179,23 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             player.setTurnEnded(true);
             onGameStateChange();
             onPlayerEndsTurn();
+        }
+    }
+
+    //A player choosing to Double Down means they are taking one more card, doubling their bet
+    // (bets are NOT handled by this game), and standing immediately afterwards regardless of hand value.
+    public void onPlayerDoubleDown(String playerId){
+        if(!isGameStarted) return;
+        BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        if (player == null) return;
+        //Deal a card unless the player has blackjack, busted out, or has already opted to stand.
+        // This can all be determined with the hasEndedTurn boolean because that is kept current with those actions.
+        if(!player.isTurnEnded()){
+            player.push(deck.deal());
+            player.setDoubledDown(true);
+            player.setTurnEnded(true);
+            onPlayerEndsTurn();
+            onGameStateChange();
         }
     }
 }

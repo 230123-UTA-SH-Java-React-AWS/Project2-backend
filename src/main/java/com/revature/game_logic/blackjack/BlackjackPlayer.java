@@ -17,6 +17,8 @@ public class BlackjackPlayer extends BasePlayer<BlackjackClientGameState> {
     private boolean isTurnEnded = false;
     @Getter @Setter @NonNull
     private EndGameStates endGameState = EndGameStates.STILL_PLAYING;
+    @Getter @Setter
+    private boolean isDoubledDown = false;
 
     public BlackjackPlayer(String playerName){
         super(playerName);

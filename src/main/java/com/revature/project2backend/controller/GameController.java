@@ -126,6 +126,9 @@ public class GameController {
             case "STAND": //Player wants to end their turn without taking any more cards
                 blackjackGame.onPlayerStand(playerId);
                 break;
+            case "DOUBLE_DOWN":
+                blackjackGame.onPlayerDoubleDown(playerId);
+                break;
             default: //User is trying to take an invalid action, like "kdlfsaghiufdshgi"
         }
     }

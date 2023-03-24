@@ -9,10 +9,10 @@ import org.mockito.Mockito;
 import com.revature.game_logic.common.BaseGame;
 
 public class BaseGameTest {
-    BaseGame baseGame;
+    static BaseGame<?> baseGame;
 
     @BeforeAll
-    public void setUp() {
+    public static void setUp() {
         baseGame = Mockito.mock(BaseGame.class, Mockito.CALLS_REAL_METHODS);
     }
     
