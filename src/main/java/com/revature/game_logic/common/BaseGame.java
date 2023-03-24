@@ -89,6 +89,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         }
         if (markedForDrop != null) {
             waitingPlayers.remove();
+            updateWaitingPlayers();
         }
     }
 

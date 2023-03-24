@@ -142,7 +142,10 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         if(activePlayers.remove(player)) {
             onPlayerEndsTurn(); //A player leaving counts as ending their turn.
         }
-        chooseNewHost();
+        if(Objects.equals(hostPlayer.getPlayerId(), playerId)){
+            hostPlayer = null;
+            chooseNewHost();
+        }
     }
 
     public void onPlayerHit(String playerId){
