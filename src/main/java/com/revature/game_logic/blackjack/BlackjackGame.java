@@ -83,8 +83,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         }
         /*
          * All the players have taken their turn, now it is time for the dealer to have theirs.
-         * For now, I am ignoring the rule of "insurance". If the dealer has an ace in hand, it
-         *  is really unfortunate for the players.
+         * I am ignoring the rule of "insurance". If the dealer shows an ace in hand, it
+         *  is just really unfortunate for the players.
          * Rules for the dealer:
          *  - Dealer takes a card if they have less than 17 in hand, or if they have a 17 and a soft hand.
          *  - Once they are done taking cards, the winner is determined and payouts are made.
@@ -98,17 +98,13 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             onGameStateChange();
         }
 
-        //Ther dealer has taken all of the cards they can, it is now time determine winners/losers
-        calculateEndGameStates();
-
-        //Now that the winners/losers have been determined, the game is now ended and should be started again
-        // either by a player or after some time automatically.
-        isGameStarted = false;
-        onGameStateChange();
-    }
-
-    private void calculateEndGameStates(){
-        int dealerHandValue = dealer.getHand().getHandValue();
+        //Ther dealer has taken all of the cards they can, it is now time to determine winners/losers.
+        //SonarLint gives this block of code 15 Cognitive Complexity, which suggests that it should be extracted to its
+        // own function and called here. However, that allows the check for all players having ended their turns to
+        // potentially be bypassed if this code were to be called outside of this function.
+        //It simply makes more sense that the same function that checks for whether players have ended their turns should
+        // also handle the logic for what happens after all the turns are ended.
+        int dealerHandValue = dealerHand.getHandValue();
         for(BlackjackPlayer player : activePlayers){
             int playerHandValue = player.getHand().getHandValue();
             
@@ -137,6 +133,11 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
 
             player.setEndGameState(endGameState);
         }
+
+        //Now that the winners/losers have been determined, the game is now ended and should be started again
+        // either by a player or after some time automatically.
+        isGameStarted = false;
+        onGameStateChange();
     }
 
     //What happens when a player leaves the game via disconnection?
