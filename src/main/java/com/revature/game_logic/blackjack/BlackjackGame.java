@@ -7,6 +7,7 @@ import java.util.Random;
 
 import com.revature.card_logic.Deck52;
 import com.revature.card_logic.MultiDeck52;
+import com.revature.game_logic.blackjack.BlackjackPlayer.EndGameStates;
 import com.revature.game_logic.common.BaseGame;
 
 public class BlackjackGame extends BaseGame<BlackjackPlayer> {
@@ -32,6 +33,11 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             p.push(deck.deal(2));
             p.setEndGameState(BlackjackPlayer.EndGameStates.STILL_PLAYING);
             p.setDoubledDown(false);
+            //Special case: if the player is dealt a natural Blackjack their turn is immediately ended.
+            if(p.getHand().getHandValue() == 21){
+                p.setTurnEnded(true);
+                //I do not set the end game state here because that is handled in onGameStateChange.
+            }
         }
         onGameStateChange();
     }
@@ -92,44 +98,45 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             onGameStateChange();
         }
 
-        //The dealer has taken all the cards they can, now we determine winners/losers
-        for (BlackjackPlayer player: activePlayers) {
-            BlackjackHand playerHand = player.getHand();
-            if (playerHand.getHandValue() > 21) {
-                //If the player busts, they automatically lose regardless of what the dealer has
-                player.setEndGameState(BlackjackPlayer.EndGameStates.IS_BUSTED);
-            } else {
-                //If the player and dealer have the same amount (including 21), they tie
-                if (playerHand.getHandValue() == dealerHand.getHandValue()) {
-                    player.setEndGameState(BlackjackPlayer.EndGameStates.TIED_DEALER);
-                } else {
-                    //If the dealer busts, the player wins.
-                    if (dealerHand.isBustedOut()) {
-                        player.setEndGameState(BlackjackPlayer.EndGameStates.DEALER_BUSTED);
-                    } else {
-                        //If the player has a larger hand than the dealer, they win
-                        if (playerHand.getHandValue() > dealerHand.getHandValue()) {
-                            if (playerHand.getHandValue() == 21) {
-                                //Blackjack!
-                                player.setEndGameState(BlackjackPlayer.EndGameStates.BLACKJACK);
-                            } else {
-                                //Not a blackjack but still winning
-                                player.setEndGameState(BlackjackPlayer.EndGameStates.BEAT_DEALER);
-                            }
-                        } else {
-                            //The player has a smaller hand than the dealer, and the dealer did not go over 21. The player loses.
-                            player.setEndGameState(BlackjackPlayer.EndGameStates.LOST_TO_DEALER);
-                        }
-                    }
-                }
-            }
-            onGameStateChange();
-        }
+        //Ther dealer has taken all of the cards they can, it is now time determine winners/losers
+        calculateEndGameStates();
 
         //Now that the winners/losers have been determined, the game is now ended and should be started again
         // either by a player or after some time automatically.
         isGameStarted = false;
         onGameStateChange();
+    }
+
+    private void calculateEndGameStates(){
+        int dealerHandValue = dealer.getHand().getHandValue();
+        for(BlackjackPlayer player : activePlayers){
+            int playerHandValue = player.getHand().getHandValue();
+            
+            //It is acceptible for this to be null here because all possible end game states are checked for below.
+            //However, Sonar Lint doesn't like it so I set this to STILL_PLAYING.
+            EndGameStates endGameState = EndGameStates.STILL_PLAYING;
+
+            if (playerHandValue > 21) {
+                endGameState = EndGameStates.IS_BUSTED;
+            } else if (playerHandValue == 21) {
+                endGameState = EndGameStates.BLACKJACK;
+                if(dealerHandValue == 21) { 
+                    endGameState = EndGameStates.TIED_DEALER;
+                }
+            } else if (playerHandValue < 21){
+                if (dealerHandValue <= 21 && playerHandValue > dealerHandValue){
+                    endGameState = EndGameStates.BEAT_DEALER;
+                } else if (dealerHandValue > 21){
+                    endGameState = EndGameStates.DEALER_BUSTED;
+                } else if (playerHandValue == dealerHandValue){
+                    endGameState = EndGameStates.TIED_DEALER;
+                } else {
+                    endGameState = EndGameStates.LOST_TO_DEALER;
+                }
+            }
+
+            player.setEndGameState(endGameState);
+        }
     }
 
     //What happens when a player leaves the game via disconnection?
