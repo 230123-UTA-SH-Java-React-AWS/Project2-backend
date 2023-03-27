@@ -38,4 +38,9 @@ public class AuthController {
         return userService.getCurrentUser();
     }
 
+    @GetMapping("confirm")
+    public String confirm(@RequestParam("token") String token){
+        return userService.confirmEmailToken(token);
+    }
+
 }

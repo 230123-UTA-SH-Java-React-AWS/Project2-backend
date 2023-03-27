@@ -2,8 +2,10 @@ package com.revature.project2backend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Date;
 
@@ -28,6 +30,13 @@ public class GlobalExceptionHandler {
         exceptionObject.setTimestamp(new Date());
 
         return new ResponseEntity<>(exceptionObject, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EmailConfirmationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleEmailConfirmationException(EmailConfirmationException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
     }
 
 }
