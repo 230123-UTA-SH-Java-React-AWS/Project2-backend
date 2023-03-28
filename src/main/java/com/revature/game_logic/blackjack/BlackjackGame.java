@@ -15,6 +15,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
     BlackjackPlayer dealer = new BlackjackPlayer("Dealer");
+    //This stores the current client game state that is what gets sent to users.
+    BlackjackClientGameState gameState = null;
     
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 6);
@@ -43,6 +45,28 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     }
 
     public void onGameStateChange(){
+        updateGameState();
+
+        for(BlackjackPlayer p : activePlayers){
+            sendState(p);
+        }
+
+        updateWaitingPlayers();
+    }
+    
+    public void sendState(String playerId) {
+        BlackjackPlayer p = getActivePlayerByUrlSuffix(playerId);
+        if(p == null) return;
+        sendState(p);
+    }
+
+    public void sendState(BlackjackPlayer p){
+        if(gameState == null) return;
+        p.setClientGameState(gameState); //Update everyone's game state
+        p.sendState(); //Send the new game state to all connected clients
+    }
+
+    private void updateGameState() {
         //Create the new game state,
         //For blackjack, we only have to do this once because everyone has the same information.
         List<BlackjackClientGameState.BlackjackPlayerInfo> playerInfo = new ArrayList<>();
@@ -59,14 +83,7 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 p.isDoubledDown())
             );
         }
-        BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), dealer.getHand().getHandValue(), playerInfo);
-
-        for(BlackjackPlayer p : activePlayers){
-            p.setClientGameState(gameState); //Update everyone's game state
-            p.sendState(); //Send the new game state to all connected clients
-        }
-
-        updateWaitingPlayers();
+        gameState = new BlackjackClientGameState(dealer.getHand().getCards(), dealer.getHand().getHandValue(), playerInfo);
     }
 
     /**
