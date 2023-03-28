@@ -113,7 +113,7 @@ public class Deck52Test {
     @Test
     void shuffleShouldBeRandom() {
         Deck52 newDeck = new Deck52();
-        assertNotEquals(newDeck.shuffle().deal(), deck.shuffle().deal());
+        assertNotEquals(newDeck.shuffle().deal(52), deck.shuffle().deal(52));
     }
 
     @Test

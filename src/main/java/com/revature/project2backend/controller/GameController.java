@@ -47,6 +47,8 @@ public class GameController {
     public ResponseEntity<String> joinBlackjackGame(@RequestHeader String gameId, @RequestHeader String username) {
         BaseGame<?> game = GameRegistry.getGameByUrlSuffix(gameId);
         BlackjackGame blackjackGame;
+        //Error condition - the user is attempting to join a game that does not exist.
+        if(game == null) return ResponseEntity.status(404).body("");
         if(game instanceof BlackjackGame){
             blackjackGame = (BlackjackGame)game;
         } else {

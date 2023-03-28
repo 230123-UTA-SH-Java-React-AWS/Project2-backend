@@ -45,14 +45,13 @@ public class SecurityConfig {
         // auth entry point setup with jwt
         // session setup to be stateless meaning: server doesn't maintain any session data and all session data is stored on the client side, so each request from the client must contain necessary info in this case its the jwt token
         // "/api/auth/**" contains two endpoints "login" and "register", any endpoint after /auth does not require users to be authenticated
-        http.csrf().csrfTokenRepository(csrfTokenRepository()).and()
+        http.csrf().disable()
                 .cors(Customizer.withDefaults())
                 .exceptionHandling().authenticationEntryPoint(authEntryPoint).accessDeniedHandler(csrfAccessDeniedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/csrf").permitAll().and()
-                .authorizeRequests().antMatchers("/ws").permitAll().and()
-                .authorizeRequests().antMatchers("/api/hello").authenticated().and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
+                .authorizeHttpRequests().antMatchers("/api/csrf").permitAll().and()
+                .authorizeHttpRequests().antMatchers("/ws").permitAll().and()
+                .authorizeHttpRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
         // jwt filter will validate tokens on each request
         http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -78,7 +77,9 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration=  new CorsConfiguration();
         //TODO: change allowed origin to hosted url later
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080", "http://localhost:4798"));
+        configuration.setAllowedOrigins(Arrays.asList("http://host.docker.internal:3000","http://host.docker.internal:8000","http://host.docker.internal:4798",
+            "http://localhost:3000", "http://localhost:8080", "http://localhost:4798",
+            "http://cg-docker-jenkins-vm.eastus.cloudapp.azure.com:3000", "http://cg-docker-jenkins-vm.eastus.cloudapp.azure.com:8080", "http://cg-docker-jenkins-vm.eastus.cloudapp.azure.com:4798"));
         //TODO: update list if needed
         configuration.setAllowedMethods(Arrays.asList("*"));
         //configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT, "X-XSRF-TOKEN"));
@@ -95,6 +96,7 @@ public class SecurityConfig {
         // csrf token can only be accessed using http requests and not javascript
         CookieCsrfTokenRepository repository = new CookieCsrfTokenRepository();
         repository.setCookieHttpOnly(false);
+        repository.setSecure(true);
         return repository;
     }
 }
