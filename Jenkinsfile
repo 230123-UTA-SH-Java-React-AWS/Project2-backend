@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     stages {
-        stage('Building and create .jar file){
+        stage('Building and create .jar file'){
             steps {
                 echo 'Building the .jar file'
                 
