@@ -19,19 +19,19 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     BlackjackClientGameState gameState = null;
     //Thread that handles automatically sends information to the players every 5 seconds.
     Thread sendThread;
+    boolean threadShouldStop = false;
     
     public BlackjackGame(String gameName, boolean isPrivateGame) {
         super(gameName, isPrivateGame, 5);
         gameType = GameType.BLACKJACK;
         sendThread = new Thread(() -> {
-            System.out.println("------- thread started");
             while(true){
                 try {
                     Thread.sleep(5000L);
-                    System.out.println("threds threds threds threds");
-                for(BlackjackPlayer p : activePlayers){
-                    sendState(p);
-                }
+                    if(threadShouldStop) return;
+                    for(BlackjackPlayer p : activePlayers){
+                        sendState(p);
+                    }
                 } catch (InterruptedException e) {
                     sendThread.interrupt();
                 }
@@ -41,7 +41,13 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         sendThread.start();
     }
 
+    @Override
+    public void cleanup(){
+        threadShouldStop = true;
+    }
+
     public void dealHands(){
+        boolean anyoneWasDealtBlackjack = false;
         if(isGameStarted) return;
         deck = new MultiDeck52(6);
         dealer = new BlackjackPlayer("Dealer");
@@ -57,9 +63,10 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             if(p.getHand().getHandValue() == 21){
                 p.setTurnEnded(true);
                 //I do not set the end game state here because that is handled in onGameStateChange.
-                onPlayerEndsTurn();
+                anyoneWasDealtBlackjack = true;
             }
         }
+        if(anyoneWasDealtBlackjack) onPlayerEndsTurn();
         onGameStateChange();
     }
 
