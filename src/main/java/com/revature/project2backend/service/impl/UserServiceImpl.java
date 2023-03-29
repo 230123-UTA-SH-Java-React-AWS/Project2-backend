@@ -57,6 +57,17 @@ public class UserServiceImpl implements UserService {
         return Optional.empty();
     }
 
+    
+    public boolean isUsernameUnique(String username) {
+        Optional<UserEntity> user = userRepository.findByUsername(username);
+        return !user.isPresent();
+    }
+
+
+    public boolean checkEmailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     //TODO: include user details like username, wins, and profile photo
     @Override
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto){
