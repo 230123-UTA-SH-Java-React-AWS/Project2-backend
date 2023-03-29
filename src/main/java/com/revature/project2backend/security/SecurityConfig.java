@@ -5,7 +5,6 @@ import com.revature.project2backend.exception.CsrfAccessDeniedHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -77,9 +76,9 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration=  new CorsConfiguration();
         //TODO: change allowed origin to hosted url later
-        configuration.setAllowedOrigins(Arrays.asList("http://host.docker.internal:3000","http://host.docker.internal:8000","http://host.docker.internal:4798",
-            "http://localhost:3000", "http://localhost:8080", "http://localhost:4798",
-            "http://cg-docker-jenkins-vm.eastus.cloudapp.azure.com:3000", "http://cg-docker-jenkins-vm.eastus.cloudapp.azure.com:8080", "http://cg-docker-jenkins-vm.eastus.cloudapp.azure.com:4798"));
+        configuration.setAllowedOrigins(Arrays.asList("http://host.docker.internal:80","http://host.docker.internal:3000","http://host.docker.internal:8000","http://host.docker.internal:4798",
+            "http://localhost:80", "http://localhost:3000", "http://localhost:8080", "http://localhost:4798",
+            "http://20.185.146.14:80", "http://20.185.146.14:3000", "http://20.185.146.14:8080", "http://20.185.146.14:4798"));
         //TODO: update list if needed
         configuration.setAllowedMethods(Arrays.asList("*"));
         //configuration.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT, "X-XSRF-TOKEN"));
