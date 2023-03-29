@@ -41,6 +41,17 @@ public class UserServiceImpl implements UserService {
         this.jwtGenerator = jwtGenerator;
     }
 
+
+    public boolean isUsernameUnique(String username) {
+        Optional<UserEntity> user = userRepository.findByUsername(username);
+        return !user.isPresent();
+    }
+
+
+    public boolean checkEmailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     //TODO: clean up response to include user details like username, wins, and profile photo
     public Optional<UserDto> getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

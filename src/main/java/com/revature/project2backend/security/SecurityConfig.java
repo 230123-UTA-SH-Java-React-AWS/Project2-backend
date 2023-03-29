@@ -92,7 +92,7 @@ public class SecurityConfig {
     public CsrfTokenRepository csrfTokenRepository() {
         // csrf token can only be accessed using http requests and not javascript
         CookieCsrfTokenRepository repository = new CookieCsrfTokenRepository();
-        repository.setCookieHttpOnly(true);
+        repository.setCookieHttpOnly(false);
         return repository;
     }
 }
