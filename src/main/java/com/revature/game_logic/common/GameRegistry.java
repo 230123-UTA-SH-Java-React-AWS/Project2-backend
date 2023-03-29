@@ -30,6 +30,7 @@ public class GameRegistry {
     }
 
     public static void removeGame(String gameId){
+        runningGames.get(gameId).cleanup();
         runningGames.remove(gameId);
     }
 
