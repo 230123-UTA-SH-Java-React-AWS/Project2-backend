@@ -22,5 +22,6 @@ public @Data @AllArgsConstructor class BlackjackClientGameState implements BaseC
         List<Card52> cards;
         int handValue;
         boolean isHost;
+        boolean isDoubledDown;
     }
 }
