@@ -32,9 +32,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class) @SpringBootTest
+@TestPropertySource(locations = "classpath:application-test.properties")
 class JwtGeneratorTest {
 
     @Mock
