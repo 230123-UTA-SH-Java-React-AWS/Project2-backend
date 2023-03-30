@@ -24,3 +24,20 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
         response.getWriter().write(jsonResponse);
     }
 }
+
+/*
+* JwtAuthEntryPoint Class Documentation
+This class implements the AuthenticationEntryPoint interface and serves as a custom JWT authentication entry point for the application. It handles requests that fail to authenticate due to missing or invalid JWT tokens.
+
+Dependencies
+None.
+
+Methods
+commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
+This method is invoked when an authentication request fails due to an invalid or missing JWT token. It sets the response status to HttpServletResponse.SC_UNAUTHORIZED, sets the content type to "application/json", and sends a custom JSON error message in the response body.
+
+Annotations
+@Component: Indicates that the class should be treated as a Spring component and managed by the Spring container.
+Implements
+AuthenticationEntryPoint: An interface for handling authentication requests that fail for any reason.
+* */

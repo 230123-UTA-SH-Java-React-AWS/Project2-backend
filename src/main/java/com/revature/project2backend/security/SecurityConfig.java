@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .exceptionHandling().authenticationEntryPoint(authEntryPoint).accessDeniedHandler(csrfAccessDeniedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+
                 .authorizeHttpRequests().antMatchers("/api/csrf").permitAll().and()
                 .authorizeHttpRequests().antMatchers("/ws").permitAll().and()
                 .authorizeHttpRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
@@ -98,3 +99,43 @@ public class SecurityConfig {
         return repository;
     }
 }
+
+/*
+* SecurityConfig Class Documentation
+This class provides the security configuration for the application using Spring Security. It configures authentication, CSRF protection, CORS settings, and custom JWT filter.
+
+Class Dependencies
+JwtAuthEntryPoint: Custom authentication entry point for handling unauthorized access.
+CustomUserDetailsService: A custom user details service for loading user-specific data.
+CsrfAccessDeniedHandler: Custom access denied handler for CSRF protection.
+Constructor
+The constructor takes the following parameters:
+
+CustomUserDetailsService userDetailsService
+JwtAuthEntryPoint authEntryPoint
+CsrfAccessDeniedHandler csrfAccessDeniedHandler
+These parameters are used to initialize the respective class properties.
+
+Beans
+filterChain(HttpSecurity http)
+This bean defines the security filter chain. It sets up the security rules, authentication entry points, session management, and authorized request paths. Additionally, it adds the JWT authentication filter before the UsernamePasswordAuthenticationFilter.
+
+authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+This bean creates an instance of Spring Security's AuthenticationManager, which authenticates user credentials.
+
+passwordEncoder()
+This bean creates an instance of BCryptPasswordEncoder for encoding and decoding passwords.
+
+jwtAuthFilter()
+This bean creates an instance of JwtAuthFilter for handling JWT authentication.
+
+corsConfigurationSource()
+This bean sets up the CORS configuration for the application, including allowed origins, methods, headers, and credentials. It registers the CORS configuration for all endpoints.
+
+csrfTokenRepository()
+This bean sets up the CSRF token repository using CookieCsrfTokenRepository. It ensures that the CSRF token can only be accessed using HTTP requests and not JavaScript.
+
+Annotations
+@Configuration: Indicates that the class is a configuration class.
+@EnableWebSecurity: Enables web security for the application.
+* */

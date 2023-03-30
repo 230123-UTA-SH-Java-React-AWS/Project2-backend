@@ -11,14 +11,14 @@ import com.revature.project2backend.dto.AuthResponseDto;
 import com.revature.project2backend.dto.LoginDto;
 import com.revature.project2backend.model.UserEntity;
 import com.revature.project2backend.repository.UserRepository;
+import com.revature.project2backend.service.EmailSender;
+import com.revature.project2backend.service.impl.EmailTokenServiceImpl;
 import com.revature.project2backend.service.impl.UserServiceImpl;
 import io.jsonwebtoken.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,6 +45,10 @@ class JwtGeneratorTest {
     UserRepository userRepository;
     @Mock
     PasswordEncoder passwordEncoder;
+    @Mock
+    EmailTokenServiceImpl emailTokenService;
+    @Mock
+    EmailSender emailSender;
     @Autowired
     JwtGenerator jwtGenerator;
     UserServiceImpl userService;
@@ -61,15 +65,16 @@ class JwtGeneratorTest {
         loginDto.setPassword("crazyPassword1!");
 
         userEntity = new UserEntity();
-        userEntity.setId(1);
+        userEntity.setId(1L);
         userEntity.setUsername("bogus");
         userEntity.setEmail("bogus@email.com");
         userEntity.setPassword("hashed_password");
+        userEntity.setEnabled(true);
 
         userDetails = new User(userEntity.getEmail(), userEntity.getPassword(), new ArrayList<>());
         authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-        userService = new UserServiceImpl(authenticationManager,userRepository,passwordEncoder,jwtGenerator);
+        userService = new UserServiceImpl(authenticationManager,userRepository,passwordEncoder,jwtGenerator, emailTokenService, emailSender);
     }
 
     @Test

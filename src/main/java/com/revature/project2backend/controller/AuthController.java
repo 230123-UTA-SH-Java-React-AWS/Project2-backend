@@ -38,6 +38,13 @@ public class AuthController {
         return userService.getCurrentUser();
     }
 
+
+    @GetMapping("confirm")
+    public String confirm(@RequestParam("token") String token){
+        return userService.confirmEmailToken(token);
+    }
+
+
     @GetMapping("/check-email/{email}")
     public boolean checkEmail(@PathVariable("email") String email) {
        return userService.checkEmailExists(email);
@@ -48,5 +55,6 @@ public class AuthController {
     boolean isUnique = userService.isUsernameUnique(username);
     return ResponseEntity.ok(isUnique);
 }
+
 
 }

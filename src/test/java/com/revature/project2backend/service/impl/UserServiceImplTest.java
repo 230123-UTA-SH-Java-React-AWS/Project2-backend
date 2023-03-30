@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.revature.project2backend.dto.UserDto;
 import com.revature.project2backend.exception.LoginNotValidException;
 import com.revature.project2backend.exception.RegisterNotValidException;
+import com.revature.project2backend.service.EmailSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,10 @@ class UserServiceImplTest {
     PasswordEncoder passwordEncoder;
     @Mock
     JwtGenerator jwtGenerator;
+    @Mock
+    EmailTokenServiceImpl emailTokenService;
+    @Mock
+    EmailSender emailSender;
     @InjectMocks
     UserServiceImpl userService;
     
@@ -60,10 +65,12 @@ class UserServiceImplTest {
         loginDto.setPassword("crazyPassword1!");
         
         userEntity = new UserEntity();
-        userEntity.setId(1);
+        userEntity.setId(1L);
         userEntity.setUsername("bogus");
         userEntity.setEmail("bogus@email.com");
         userEntity.setPassword("hashed_password");
+        userEntity.setEnabled(true);
+
 
         userDetails = new User(userEntity.getEmail(), userEntity.getPassword(), new ArrayList<>());
         authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -149,7 +156,7 @@ class UserServiceImplTest {
 
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("User registered successfully!", response.getBody());
+        assertEquals("User registered. PLease confirm your email by clicking the link sent to: bogus@email.com", response.getBody());
 
         verify(userRepository, times(1)).existsByEmail(registerDto.getEmail());
         verify(userRepository, times(1)).existsByUsername(registerDto.getUsername());
@@ -246,8 +253,6 @@ class UserServiceImplTest {
 
         assertFalse(result.isPresent());
     }
-
-
 
 
 }
