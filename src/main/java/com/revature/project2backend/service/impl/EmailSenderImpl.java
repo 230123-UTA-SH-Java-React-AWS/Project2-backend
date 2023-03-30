@@ -25,7 +25,7 @@ public class EmailSenderImpl implements EmailSender {
             helper.setText(email, true);
             helper.setTo(to);
             helper.setSubject("Confirm your blackjack email");
-            helper.setFrom("yesimandriy@gmail.com");
+            helper.setFrom("noreply.project.blackjack@gmail.com");
             mailSender.send(mimeMessage);
         }catch(MessagingException e){
             throw new EmailConfirmationException("Failed to send confirmation email");
