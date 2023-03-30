@@ -45,12 +45,12 @@ public class AuthController {
     }
 
 
-    @GetMapping("/check-email/{email}")
+    @GetMapping("check-email/{email}")
     public boolean checkEmail(@PathVariable("email") String email) {
        return userService.checkEmailExists(email);
     }
 
-    @GetMapping("/check-username/{username}")
+    @GetMapping("check-username/{username}")
     public ResponseEntity<Boolean> checkUsername(@PathVariable String username) {
     boolean isUnique = userService.isUsernameUnique(username);
     return ResponseEntity.ok(isUnique);
