@@ -23,11 +23,11 @@ pipeline {
 
         stage('Deploying into docker container') {
             steps {
-                //Stop all running containers
+                //Stop any running containers of this image
                 sh 'sudo docker rm -f $(sudo docker ps -f name=p2back -q)'
                 
                 //Run latest version of image in a container
-                sh 'sudo docker run -p 4798:4798 -e url=$dburl --name p2back connoreg/p2backend:latest'
+                sh 'sudo docker run -d -p 4798:4798 -e url=$dburl --name p2back connoreg/p2backend:latest'
             }
         }
     }
