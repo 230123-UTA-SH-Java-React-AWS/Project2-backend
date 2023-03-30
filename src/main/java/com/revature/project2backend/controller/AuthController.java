@@ -6,7 +6,6 @@ import com.revature.project2backend.dto.LoginDto;
 import com.revature.project2backend.dto.RegisterDto;
 import com.revature.project2backend.dto.UserDto;
 import com.revature.project2backend.service.impl.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,6 @@ public class AuthController {
 
     private UserServiceImpl userService;
 
-    @Autowired
     public AuthController( UserServiceImpl userService) {
         this.userService = userService;
     }
