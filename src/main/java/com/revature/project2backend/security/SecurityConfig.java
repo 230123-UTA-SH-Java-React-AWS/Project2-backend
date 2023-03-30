@@ -49,6 +49,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests().antMatchers("/api/csrf").permitAll().and()
                 .authorizeHttpRequests().antMatchers("/ws").permitAll().and()
+                .authorizeHttpRequests().antMatchers("/swagger-ui/**").permitAll().and()
                 .authorizeHttpRequests().antMatchers("/api/auth/**").permitAll().anyRequest().authenticated().and().httpBasic();
         // jwt filter will validate tokens on each request
         http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
