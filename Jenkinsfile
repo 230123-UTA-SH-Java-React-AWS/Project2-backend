@@ -27,7 +27,7 @@ pipeline {
                 sh 'sudo docker rm -f $(sudo docker ps -af name=p2back -q)'
                 
                 //Run latest version of image in a container
-                sh 'sudo docker run -d -p 4798:4798 -e url=$dburl --name p2back connoreg/p2backend:latest'
+                sh 'sudo docker run -d -p 4798:4798 --name p2back -e url=$dburl connoreg/p2backend:latest'
             }
         }
     }
