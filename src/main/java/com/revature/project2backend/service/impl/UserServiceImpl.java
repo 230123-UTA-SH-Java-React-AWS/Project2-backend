@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
                     emailTokenService.saveEmailToken(emailToken);
 
                     //send email to confirm
-                    String link = "http://localhost:4798/api/auth/confirm?token=" + token;
+                    String link = "http://stephens-blackjack.eastus.cloudapp.azure.com:4798/api/auth/confirm?token=" + token;
                     emailSender.send(user.get().getEmail(), buildEmail(user.get().getUsername(), link));
                     throw new LoginNotValidException("Email was not confirmed! Please check your email for a confirmation link.");
                 }
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
         emailTokenService.saveEmailToken(emailToken);
 
         //send email to confirm
-        String link = "http://localhost:4798/api/auth/confirm?token=" + token;
+        String link = "http://stephens-blackjack.eastus.cloudapp.azure.com:4798/api/auth/confirm?token=" + token;
         emailSender.send(user.getEmail(), buildEmail(user.getUsername(), link));
 
         return new ResponseEntity<>("User registered. PLease confirm your email by clicking the link sent to: " + user.getEmail(),HttpStatus.OK);
