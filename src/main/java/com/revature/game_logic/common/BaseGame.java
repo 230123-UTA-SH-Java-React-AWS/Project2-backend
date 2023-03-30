@@ -37,6 +37,9 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         this.maxActivePlayers = maxActivePlayers;
     }
 
+    //Used by games to handle any operations which need to run when the game is closed.
+    public abstract void cleanup();
+
     //Bring players from the waiting queue into the actual game.
     protected void admitPlayers(){
         if(isGameStarted) return; //Cannot allow players in if the game is in progress
@@ -89,6 +92,7 @@ public abstract class BaseGame<T extends BasePlayer<?>> {
         }
         if (markedForDrop != null) {
             waitingPlayers.remove();
+            updateWaitingPlayers();
         }
     }
 

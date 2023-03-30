@@ -7,6 +7,7 @@ import java.util.Random;
 
 import com.revature.card_logic.Deck52;
 import com.revature.card_logic.MultiDeck52;
+import com.revature.game_logic.blackjack.BlackjackPlayer.EndGameStates;
 import com.revature.game_logic.common.BaseGame;
 
 public class BlackjackGame extends BaseGame<BlackjackPlayer> {
@@ -14,13 +15,39 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     Deck52 deck;
     //The dealer always exists and their cards are what gets compared against the players' cards.
     BlackjackPlayer dealer = new BlackjackPlayer("Dealer");
+    //This stores the current client game state that is what gets sent to users.
+    BlackjackClientGameState gameState = null;
+    //Thread that handles automatically sends information to the players every 5 seconds.
+    Thread sendThread;
+    boolean threadShouldStop = false;
     
     public BlackjackGame(String gameName, boolean isPrivateGame) {
-        super(gameName, isPrivateGame, 6);
+        super(gameName, isPrivateGame, 5);
         gameType = GameType.BLACKJACK;
+        sendThread = new Thread(() -> {
+            while(true){
+                try {
+                    Thread.sleep(5000L);
+                    if(threadShouldStop) return;
+                    for(BlackjackPlayer p : activePlayers){
+                        sendState(p);
+                    }
+                } catch (InterruptedException e) {
+                    sendThread.interrupt();
+                }
+                
+            }
+        });
+        sendThread.start();
+    }
+
+    @Override
+    public void cleanup(){
+        threadShouldStop = true;
     }
 
     public void dealHands(){
+        boolean anyoneWasDealtBlackjack = false;
         if(isGameStarted) return;
         deck = new MultiDeck52(6);
         dealer = new BlackjackPlayer("Dealer");
@@ -31,11 +58,41 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             p.setTurnEnded(false);
             p.push(deck.deal(2));
             p.setEndGameState(BlackjackPlayer.EndGameStates.STILL_PLAYING);
+            p.setDoubledDown(false);
+            //Special case: if the player is dealt a natural Blackjack their turn is immediately ended.
+            if(p.getHand().getHandValue() == 21){
+                p.setTurnEnded(true);
+                //I do not set the end game state here because that is handled in onGameStateChange.
+                anyoneWasDealtBlackjack = true;
+            }
         }
+        if(anyoneWasDealtBlackjack) onPlayerEndsTurn();
         onGameStateChange();
     }
 
     public void onGameStateChange(){
+        updateGameState();
+
+        for(BlackjackPlayer p : activePlayers){
+            sendState(p);
+        }
+
+        updateWaitingPlayers();
+    }
+    
+    public void sendState(String playerId) {
+        BlackjackPlayer p = getActivePlayerByUrlSuffix(playerId);
+        if(p == null) return;
+        sendState(p);
+    }
+
+    public void sendState(BlackjackPlayer p){
+        if(gameState == null) return;
+        p.setClientGameState(gameState); //Update everyone's game state
+        p.sendState(); //Send the new game state to all connected clients
+    }
+
+    private void updateGameState() {
         //Create the new game state,
         //For blackjack, we only have to do this once because everyone has the same information.
         List<BlackjackClientGameState.BlackjackPlayerInfo> playerInfo = new ArrayList<>();
@@ -48,17 +105,11 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
                 p.isTurnEnded(),
                 p.getHand().getCards(),
                 p.getHand().getHandValue(),
-                Objects.equals(p.getPlayerId(), hostPlayer.getPlayerId()))
+                Objects.equals(p.getPlayerId(), hostPlayer.getPlayerId()),
+                p.isDoubledDown())
             );
         }
-        BlackjackClientGameState gameState = new BlackjackClientGameState(dealer.getHand().getCards(), dealer.getHand().getHandValue(), playerInfo);
-
-        for(BlackjackPlayer p : activePlayers){
-            p.setClientGameState(gameState); //Update everyone's game state
-            p.sendState(); //Send the new game state to all connected clients
-        }
-
-        updateWaitingPlayers();
+        gameState = new BlackjackClientGameState(dealer.getHand().getCards(), dealer.getHand().getHandValue(), playerInfo);
     }
 
     /**
@@ -75,8 +126,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         }
         /*
          * All the players have taken their turn, now it is time for the dealer to have theirs.
-         * For now, I am ignoring the rule of "insurance". If the dealer has an ace in hand, it
-         *  is really unfortunate for the players.
+         * I am ignoring the rule of "insurance". If the dealer shows an ace in hand, it
+         *  is just really unfortunate for the players.
          * Rules for the dealer:
          *  - Dealer takes a card if they have less than 17 in hand, or if they have a 17 and a soft hand.
          *  - Once they are done taking cards, the winner is determined and payouts are made.
@@ -90,38 +141,40 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             onGameStateChange();
         }
 
-        //The dealer has taken all the cards they can, now we determine winners/losers
-        for (BlackjackPlayer player: activePlayers) {
-            BlackjackHand playerHand = player.getHand();
-            if (playerHand.getHandValue() > 21) {
-                //If the player busts, they automatically lose regardless of what the dealer has
-                player.setEndGameState(BlackjackPlayer.EndGameStates.IS_BUSTED);
-            } else {
-                //If the player and dealer have the same amount (including 21), they tie
-                if (playerHand.getHandValue() == dealerHand.getHandValue()) {
-                    player.setEndGameState(BlackjackPlayer.EndGameStates.TIED_DEALER);
+        //Ther dealer has taken all of the cards they can, it is now time to determine winners/losers.
+        //SonarLint gives this block of code 15 Cognitive Complexity, which suggests that it should be extracted to its
+        // own function and called here. However, that allows the check for all players having ended their turns to
+        // potentially be bypassed if this code were to be called outside of this function.
+        //It simply makes more sense that the same function that checks for whether players have ended their turns should
+        // also handle the logic for what happens after all the turns are ended.
+        int dealerHandValue = dealerHand.getHandValue();
+        for(BlackjackPlayer player : activePlayers){
+            int playerHandValue = player.getHand().getHandValue();
+            
+            //It is acceptible for this to be null here because all possible end game states are checked for below.
+            //However, Sonar Lint doesn't like it so I set this to STILL_PLAYING.
+            EndGameStates endGameState = EndGameStates.STILL_PLAYING;
+
+            if (playerHandValue > 21) {
+                endGameState = EndGameStates.IS_BUSTED;
+            } else if (playerHandValue == 21) {
+                endGameState = EndGameStates.BLACKJACK;
+                if(dealerHandValue == 21) { 
+                    endGameState = EndGameStates.TIED_DEALER;
+                }
+            } else if (playerHandValue < 21){
+                if (dealerHandValue <= 21 && playerHandValue > dealerHandValue){
+                    endGameState = EndGameStates.BEAT_DEALER;
+                } else if (dealerHandValue > 21){
+                    endGameState = EndGameStates.DEALER_BUSTED;
+                } else if (playerHandValue == dealerHandValue){
+                    endGameState = EndGameStates.TIED_DEALER;
                 } else {
-                    //If the dealer busts, the player wins.
-                    if (dealerHand.isBustedOut()) {
-                        player.setEndGameState(BlackjackPlayer.EndGameStates.DEALER_BUSTED);
-                    } else {
-                        //If the player has a larger hand than the dealer, they win
-                        if (playerHand.getHandValue() > dealerHand.getHandValue()) {
-                            if (playerHand.getHandValue() == 21) {
-                                //Blackjack!
-                                player.setEndGameState(BlackjackPlayer.EndGameStates.BLACKJACK);
-                            } else {
-                                //Not a blackjack but still winning
-                                player.setEndGameState(BlackjackPlayer.EndGameStates.BEAT_DEALER);
-                            }
-                        } else {
-                            //The player has a smaller hand than the dealer, and the dealer did not go over 21. The player loses.
-                            player.setEndGameState(BlackjackPlayer.EndGameStates.LOST_TO_DEALER);
-                        }
-                    }
+                    endGameState = EndGameStates.LOST_TO_DEALER;
                 }
             }
-            onGameStateChange();
+
+            player.setEndGameState(endGameState);
         }
 
         //Now that the winners/losers have been determined, the game is now ended and should be started again
@@ -134,17 +187,25 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
     // One solution: the player withdraws and loses any money they had bet that round.
     @Override
     public void dropPlayer(String playerId){
+        if(Objects.equals(hostPlayer.getPlayerId(), playerId)) hostPlayer = null;
         //Dropping queued players first.
         super.dropPlayer(playerId);
         //Scanning for any active players that need to be removed
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
         if (player == null) return;
         if(activePlayers.remove(player)) {
+            chooseNewHost();
             onPlayerEndsTurn(); //A player leaving counts as ending their turn.
         }
-        chooseNewHost();
+        if(Objects.equals(hostPlayer.getPlayerId(), playerId)){
+            hostPlayer = null;
+            chooseNewHost();
+        }
     }
 
+    //A player choosing to Hit means they are taking an additional card.
+    //If they have Blackjack (their hand value = 21) or have busted out (hand value > 21), they
+    // are prevented from taking any more cards.
     public void onPlayerHit(String playerId){
         if(!isGameStarted) return;
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
@@ -161,6 +222,8 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
         }
     }
 
+    //A player choosing to Stand means they are no longer taking cards.
+    // From the perspective of the game state, this simply ends their turn.
     public void onPlayerStand(String playerId){
         if(!isGameStarted) return;
         BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
@@ -170,6 +233,23 @@ public class BlackjackGame extends BaseGame<BlackjackPlayer> {
             player.setTurnEnded(true);
             onGameStateChange();
             onPlayerEndsTurn();
+        }
+    }
+
+    //A player choosing to Double Down means they are taking one more card, doubling their bet
+    // (bets are NOT handled by this game), and standing immediately afterwards regardless of hand value.
+    public void onPlayerDoubleDown(String playerId){
+        if(!isGameStarted) return;
+        BlackjackPlayer player = getActivePlayerByUrlSuffix(playerId);
+        if (player == null) return;
+        //Deal a card unless the player has blackjack, busted out, or has already opted to stand.
+        // This can all be determined with the hasEndedTurn boolean because that is kept current with those actions.
+        if(!player.isTurnEnded()){
+            player.push(deck.deal());
+            player.setDoubledDown(true);
+            player.setTurnEnded(true);
+            onPlayerEndsTurn();
+            onGameStateChange();
         }
     }
 }

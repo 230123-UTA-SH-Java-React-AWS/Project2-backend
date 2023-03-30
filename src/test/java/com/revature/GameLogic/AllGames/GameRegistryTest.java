@@ -9,7 +9,7 @@ public class GameRegistryTest {
     GameRegistry gameRegistry;
 
     @BeforeAll
-    void setUp() {
+    static void setUp() {
         
     }
 
